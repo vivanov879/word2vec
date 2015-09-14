@@ -2,3 +2,8 @@
 .ipynb*
 nngraph*.dot
 nngraph*.svg
+filtered_datasetSentences
+filtered_datasetSentences_indexes_en
+vocabulary_en
+inv_vocabulary_en
+
