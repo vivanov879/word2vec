@@ -15,7 +15,7 @@ dataset.getRandomContext = getRandomContext
 print(dataset.getRandomContext(2))
 
 
-'''
+
 random.seed(1)
 dataset = StanfordSentiment()
 tokens = dataset.tokens()
@@ -29,11 +29,11 @@ C = 10
 
 for _ in range(10):
     print(dataset.getRandomContext(C))
-    #print(dataset.getRandomTrainSentence())
-    #print(dataset.getTrainSentences()[random.randint(1, 1000)])
+    print(dataset.getRandomTrainSentence())
+    print(dataset.getTrainSentences()[random.randint(1, 1000)])
 
 b = 1
 pass
 
-'''
+
 
