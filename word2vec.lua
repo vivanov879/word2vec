@@ -37,29 +37,18 @@ function convert2tensors(sentences)
   return l  
 end
 
-sentences_en = read_words('filtered_sentences_indexes_en1')
+sentences_en = read_words('filtered_sentences_indexes_en')
 
-function calc_max_sentence_len(sentences)
-  local m = 1
-  for _, sentence in pairs(sentences_en) do
-    m = math.max(m, #sentence)
-  end
-  return m
-end
-
-max_sentence_len = math.max(calc_max_sentence_len(sentences_en), calc_max_sentence_len(sentences_ru))
-
---sentences_ru = convert2tensors(sentences_ru)
---sentences_en = convert2tensors(sentences_en)
-
---print(sentences_ru)
-
-assert(#sentences_en == #sentences_ru)
 n_data = #sentences_en
 
-vocabulary_ru = table.load('vocabulary_ru')
 vocabulary_en = table.load('vocabulary_en')
-vocab_size = #vocabulary_ru
-assert (#vocabulary_en == #vocabulary_ru)
+vocab_size = #vocabulary_en
+
+
+
+
+
+
+
 
 
