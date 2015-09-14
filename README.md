@@ -1,1 +1,1 @@
-# word2vec
+Torch implementation of word2vec.

@@ -37,12 +37,39 @@ function convert2tensors(sentences)
   return l  
 end
 
-sentences_en = read_words('filtered_sentences_indexes_en')
+
+sentences_en = read_words('filtered_datasetSentences_indexes_en')
 
 n_data = #sentences_en
 
 vocabulary_en = table.load('vocabulary_en')
 vocab_size = #vocabulary_en
+
+
+
+
+
+
+x_raw = nn.Identity()()
+x = nn.Linear(12, 5)(x_raw)
+x = nn.Tanh()(x)
+x = nn.Linear(5, 10)(x)
+m_half = nn.gModule({x_raw}, {x})
+
+x_raw1 = nn.Identity()()
+x_raw2 = nn.Identity()()
+x1 = m_half(x_raw1)
+x2 = m_half(x_raw2)
+
+x1 = nn.MulConstant(-1)(x1)
+d = nn.CAddTable()({x1, x2})
+d = nn.Power(2)(d)
+d = nn.Linear(10,1)(d)
+m = nn.gModule({x_raw1, x_raw2}, {d})
+
+criterion=nn.MarginCriterion(1)
+
+embed = Embedding(vocab_size, 12)
 
 
 
