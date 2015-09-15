@@ -16,18 +16,16 @@ m_half = nn.gModule({x_raw}, {x})
 x_raw1 = nn.Identity()()
 x_raw2 = nn.Identity()()
 x1 = m_half({x_raw1})
-x2 = m_half({x_raw2})
-
-x1 = nn.MulConstant(-1)(x1)
-d = nn.CAddTable()({x1, x2})
-d = nn.Power(2)(d)
-d = nn.Linear(10,1)(d)
-m = nn.gModule({x_raw1, x_raw2}, {d})
 
 
-x = nn.Identity()()
-z = m_half({x})
-m = nn.gModule({x}, {z})
+m = nn.gModule({x_raw1}, {x1})
+
+--x1 = nn.MulConstant(-1)(x1)
+--d = nn.CAddTable()({x1, x2})
+--d = nn.Power(2)(d)
+--d = nn.Linear(10,1)(d)
+--m = nn.gModule({x_raw1, x_raw2}, {d})
+
 
 local params, grad_params = model_utils.combine_all_parameters(m)
 params:uniform(-0.08, 0.08)
