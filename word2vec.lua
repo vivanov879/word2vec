@@ -101,39 +101,40 @@ function gen_batch()
 end
 
 
+x_center_raw = nn.Identity()()
+x_outer_raw = nn.Identity()()
+x_neg_raw = nn.Identity()()
 
-x_raw = nn.Identity()()
-x = nn.Linear(12, 5)(x_raw)
-x = nn.Tanh()(x)
-x = nn.Linear(5, 10)(x)
-m1 = nn.gModule({x_raw}, {x})
+x_center = nn.Linear(12, 5)(x_center_raw)
+x_center = nn.Tanh()(x_center)
+x_center = nn.Linear(5, 10)(x_center)
 
-m1_clones = model_utils.clone_many_times(m1, 2)
+x_outer = nn.Linear(12, 5)(x_outer_raw)
+x_outer= nn.Tanh()(x_outer)
+x_outer = nn.Linear(5, 10)(x_outer)
 
-x_raw1 = nn.Identity()()
-x_raw2 = nn.Identity()()
-x1 = m1_clones[1]({x_raw1})
-x2 = m1_clones[2]({x_raw2})
+x_neg = nn.Linear(12, 5)(x_neg_raw)
+x_neg = nn.Tanh()(x_neg)
+x_neg = nn.Linear(5, 10)(x_neg)
 
-x1 = nn.MulConstant(-1)(x1)
-d = nn.CAddTable()({x1, x2})
-d = nn.Power(2)(d)
-d = nn.Linear(10,1)(d)
-m2 = nn.gModule({x_raw1, x_raw2}, {d})
+x_center = nn.MulConstant(-1)(x_center)
+d_neg = nn.CAddTable()({x_neg, x_center})
+d_neg = nn.Power(2)(d_neg)
+d_neg = nn.Linear(10,1)(d_neg)
 
-m2_clones = model_utils.clone_many_times(m2, 2)
+d_outer = nn.CAddTable()({x_outer, x_center})
+d_outer = nn.Power(2)(d_outer)
+d_outer = nn.Linear(10,1)(d_outer)
 
-x_center = nn.Identity()()
-x_outer = nn.Identity()()
-x_neg = nn.Identity()()
-d_outer = m2_clones[1]({x_center, x_outer})
-d_neg = m2_clones[2]({x_center, x_neg})
 target_outer = nn.Identity()()
 target_neg = nn.Identity()()
+
 loss1 = nn.MarginCriterion()({d_outer, target_outer})
 loss2 = nn.MarginCriterion()({d_neg, target_neg})
+
 loss_m = nn.CAddTable()({loss1, loss2})
-m = nn.gModule({target_outer, target_neg, x_center, x_outer, x_neg}, {loss_m})
+
+m = nn.gModule({target_outer, target_neg, x_center_raw, x_outer_raw, x_neg_raw}, {loss_m})
 
 
 embed_center = Embedding(vocab_size, 12)
