@@ -81,6 +81,10 @@ function gen_batch()
   sentences = sentences_en
   
   local batch = torch.zeros(batch_size, 3)
+  local target = 1
+  if data_index % 2 == 0 then
+    target = -1
+  end
   for k = 1, batch_size do
     sentence = sentences[start_index + k - 1]
     center_word_index = math.random(#sentence)
@@ -90,53 +94,44 @@ function gen_batch()
     outer_word = sentence[context_index]
     neg_word = math.random(#vocabulary_en)
     batch[k][1] = center_word
-    batch[k][2] = outer_word
-    batch[k][3] = neg_word
-    
+    if target == 1 then
+      batch[k][2] = outer_word
+    else 
+      batch[k][2] = neg_word
+    end
   end
   data_index = data_index + 1
   if data_index > n_data then 
     data_index = 1
   end
-  return batch
+  return batch, target
 end
 
+word_center = nn.Identity()()
+word_outer = nn.Identity()()
 
-x_center_raw = nn.Identity()()
-x_outer_raw = nn.Identity()()
-x_neg_raw = nn.Identity()()
+x_center = Embedding(vocab_size, 12)(word_center)
+x_outer = Embedding(vocab_size, 12)(word_outer)
 
-x_center = nn.Linear(12, 5)(x_center_raw)
+x_center = nn.Linear(12, 5)(x_center)
 x_center = nn.Tanh()(x_center)
 x_center = nn.Linear(5, 10)(x_center)
 
-x_outer = nn.Linear(12, 5)(x_outer_raw)
+x_outer = nn.Linear(12, 5)(x_outer)
 x_outer= nn.Tanh()(x_outer)
 x_outer = nn.Linear(5, 10)(x_outer)
 
-x_neg = nn.Linear(12, 5)(x_neg_raw)
-x_neg = nn.Tanh()(x_neg)
-x_neg = nn.Linear(5, 10)(x_neg)
-
 x_center = nn.MulConstant(-1)(x_center)
-d_neg = nn.CAddTable()({x_neg, x_center})
-d_neg = nn.Power(2)(d_neg)
 
-d_outer = nn.CAddTable()({x_outer, x_center})
-d_outer = nn.Power(2)(d_outer)
+z = nn.CAddTable()({x_outer, x_center})
+z = nn.Power(2)(z)
 
-m = nn.gModule({x_center_raw, x_outer_raw, x_neg_raw}, {d_outer, d_neg})
-
-embed_center = Embedding(vocab_size, 12)
-embed_outer = Embedding(vocab_size, 12)
+m = nn.gModule({word_center, word_outer}, {z})
 
 local params, grad_params = model_utils.combine_all_parameters(m, embed_center, embed_outer)
 params:uniform(-0.08, 0.08)
 
-
-
-criterion1 = nn.MarginCriterion()
-criterion2 = nn.MarginCriterion()
+criterion = nn.MarginCriterion()
 
 function feval(x_arg)
     if x_arg ~= params then
@@ -146,38 +141,23 @@ function feval(x_arg)
     
     local loss = 0
     
-    batch = gen_batch()
+    batch, target = gen_batch()
     word_center = batch[{{},1}]
     word_outer = batch[{{},2}]
-    word_neg = batch[{{},3}]
+    target_outer = torch.Tensor(word_outer:size(1), 10):fill(target)
         
     ------------------- forward pass -------------------
-    x_center = embed_center:forward(word_center)
-    x_outer = embed_outer:forward(word_outer)
-    x_neg = embed_outer:forward(word_neg)
-    
-    d_outer, d_neg = unpack(m:forward({x_center, x_outer, x_neg}))
-    
-    target_outer = torch.Tensor(x_outer:size(1), 10):fill(1)
-    target_neg = torch.Tensor(x_outer:size(1), 10):fill(-1)
-    
-    loss1 = criterion1:forward(d_outer, target_outer)
-    loss2 = criterion2:forward(d_neg, target_neg)
-    
-    loss = loss + loss1 + loss2
+    z = m:forward({word_center, word_outer})
+    loss_m = criterion:forward(z, target_outer)
+    loss = loss + loss_m
     
     -- complete reverse order of the above
-    dloss1 = torch.ones(x_outer:size(1),10)
-    dloss2 = torch.ones(x_outer:size(1),10)
-    dx_center, dx_outer, dx_neg = unpack(m:backward({x_center, x_outer, x_neg}, {dloss1, dloss2}))
-    dword_center = embed_center:backward(word_center, dx_center)
-    dword_outer = embed_outer:backward(word_outer, dx_outer)
-    dword_neg = embed_outer:backward(word_neg, dx_neg)
+    dz = criterion:backward(z, target_outer)
+    dword_center, dword_outer = unpack(m:backward({word_center, word_outer}, dz))
     
     -- clip gradient element-wise
     grad_params:clamp(-5, 5)
     return loss, grad_params
-
 
 end
 
@@ -191,8 +171,6 @@ for i = 1, 10000 do
   local _, loss = optim.adagrad(feval, params, optim_state)
   if i % 100 == 0 then
     print(loss)
-    print(grad_params:max())
-
   end
 
 end

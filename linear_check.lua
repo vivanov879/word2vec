@@ -23,4 +23,5 @@ local err = jac.testJacobianParameters(m, input, params, grad_params)
 print(err)
 assert(err < precision)
 
-
+x = nn.Linear1(3,4)()
+a = 1

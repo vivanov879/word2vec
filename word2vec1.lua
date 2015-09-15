@@ -65,7 +65,7 @@ end
 
 max_sentence_len = calc_max_sentence_len(sentences_en)
 context_size = 6
-batch_size = 1000
+batch_size = 10000
 data_index = 1
 
 function gen_batch()
@@ -186,9 +186,9 @@ end
 
 optim_state = {learningRate = 1e-2}
 
-for i = 1, 10000 do
+for i = 1, 100000 do
   local _, loss = optim.adagrad(feval, params, optim_state)
-  if i % 100 == 0 then
+  if i % 10 == 0 then
     print(loss)
   end
 
