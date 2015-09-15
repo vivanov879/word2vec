@@ -118,7 +118,7 @@ x2 = m1_clones[2]({x_raw2})
 x1 = nn.MulConstant(-1)(x1)
 d = nn.CAddTable()({x1, x2})
 d = nn.Power(2)(d)
-d = nn.Linear(10,1)(d)
+d = nn.Sum(2)(d)
 m2 = nn.gModule({x_raw1, x_raw2}, {d})
 
 m2_clones = model_utils.clone_many_times(m2, 2)
@@ -176,16 +176,12 @@ function feval(x_arg)
     
     -- clip gradient element-wise
     grad_params:clamp(-5, 5)
-    print(grad_params)
+    
     return loss, grad_params
 
 end
 
-
-
-optim_state = {learningRate = 1e-5}
-
-
+optim_state = {learningRate = 1e-2}
 
 for i = 1, 1000 do
   local _, loss = optim.adagrad(feval, params, optim_state)
