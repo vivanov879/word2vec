@@ -121,11 +121,9 @@ x_neg = nn.Linear(5, 10)(x_neg)
 x_center = nn.MulConstant(-1)(x_center)
 d_neg = nn.CAddTable()({x_neg, x_center})
 d_neg = nn.Power(2)(d_neg)
-d_neg = nn.Linear(10,1)(d_neg)
 
 d_outer = nn.CAddTable()({x_outer, x_center})
 d_outer = nn.Power(2)(d_outer)
-d_outer = nn.Linear(10,1)(d_outer)
 
 m = nn.gModule({x_center_raw, x_outer_raw, x_neg_raw}, {d_outer, d_neg})
 
@@ -160,8 +158,8 @@ function feval(x_arg)
     
     d_outer, d_neg = unpack(m:forward({x_center, x_outer, x_neg}))
     
-    target_outer = torch.Tensor(x_outer:size(1), 1):fill(1)
-    target_neg = torch.Tensor(x_outer:size(1), 1):fill(-1)
+    target_outer = torch.Tensor(x_outer:size(1), 10):fill(1)
+    target_neg = torch.Tensor(x_outer:size(1), 10):fill(-1)
     
     loss1 = criterion1:forward(d_outer, target_outer)
     loss2 = criterion2:forward(d_neg, target_neg)
@@ -169,8 +167,8 @@ function feval(x_arg)
     loss = loss + loss1 + loss2
     
     -- complete reverse order of the above
-    dloss1 = torch.ones(x_outer:size(1),1)
-    dloss2 = torch.ones(x_outer:size(1),1)
+    dloss1 = torch.ones(x_outer:size(1),10)
+    dloss2 = torch.ones(x_outer:size(1),10)
     dx_center, dx_outer, dx_neg = unpack(m:backward({x_center, x_outer, x_neg}, {dloss1, dloss2}))
     dword_center = embed_center:backward(word_center, dx_center)
     dword_outer = embed_outer:backward(word_outer, dx_outer)
@@ -185,7 +183,7 @@ end
 
 
 
-optim_state = {learningRate = 1e-4}
+optim_state = {learningRate = 1e-3}
 
 
 for i = 1, 10000 do
