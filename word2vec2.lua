@@ -126,16 +126,22 @@ d_outer = nn.CAddTable()({x_outer, x_center})
 d_outer = nn.Power(2)(d_outer)
 d_outer = nn.Linear(10,1)(d_outer)
 
-m = nn.gModule({x_center_raw, x_outer_raw, x_neg_raw}, {d_outer, d_neg})
+target_outer = nn.Identity()()
+target_neg = nn.Identity()()
+
+loss1 = nn.MarginCriterion()({d_outer, target_outer})
+loss2 = nn.MarginCriterion()({d_neg, target_neg})
+
+loss_m = nn.CAddTable()({loss1, loss2})
+
+m = nn.gModule({target_outer, target_neg, x_center_raw, x_outer_raw, x_neg_raw}, {loss_m})
+
 
 embed_center = Embedding(vocab_size, 12)
 embed_outer = Embedding(vocab_size, 12)
 
 local params, grad_params = model_utils.combine_all_parameters(m, embed_center, embed_outer)
 params:uniform(-0.08, 0.08)
-
-criterion1 = nn.MarginCriterion()
-criterion2 = nn.MarginCriterion()
 
 function feval(x_arg)
     if x_arg ~= params then
@@ -155,37 +161,35 @@ function feval(x_arg)
     x_outer = embed_outer:forward(word_outer)
     x_neg = embed_outer:forward(word_neg)
     
-    d_outer, d_neg = unpack(m:forward({x_center, x_outer, x_neg}))
-    
     target_outer = torch.ones(x_outer:size(1), 1)
     target_neg = torch.zeros(x_outer:size(1), 1)
+    loss_m = m:forward({target_outer, target_neg, x_center, x_outer, x_neg})
     
-    loss1 = criterion1:forward(d_outer, target_outer)
-    loss2 = criterion2:forward(d_neg, target_neg)
-    
-    loss = loss + loss1 + loss2
     
     -- complete reverse order of the above
-    dloss1 = torch.ones(5,1)
-    dloss2 = torch.ones(5,1)
-    dx_center, dx_outer, dx_neg = unpack(m:backward({x_center, x_outer, x_neg}, {dloss1, dloss2}))
+    dloss_m = torch.ones(loss_m:size())
+    dtarget_outer, dtarget_neg, dx_center, dx_outer, dx_neg = m:backward({target_outer, target_neg, x_center, x_outer, x_neg}, dloss_m)
     dword_center = embed_center:backward(word_center, dx_center)
     dword_outer = embed_center:backward(word_outer, dx_outer)
     dword_neg = embed_center:backward(word_neg, dx_neg)
     
     -- clip gradient element-wise
     grad_params:clamp(-5, 5)
-    return loss, grad_params
+
+
+    
+    
+    
 
 
 end
 
 
 
-optim_state = {learningRate = 1e-3}
+optim_state = {learningRate = 1e-2}
 
 
-for i = 1, 1000 do
+for i = 1, 10 do
   local _, loss = optim.adagrad(feval, params, optim_state)
   print(loss)
 

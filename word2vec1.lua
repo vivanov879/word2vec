@@ -163,34 +163,32 @@ function feval(x_arg)
     target_outer = torch.ones(x_outer:size(1), 1)
     target_neg = torch.zeros(x_outer:size(1), 1)
     loss_m = m:forward({target_outer, target_neg, x_center, x_outer, x_neg})
+    loss = loss + loss_m[1]
     
     
     -- complete reverse order of the above
     dloss_m = torch.ones(loss_m:size())
-    dtarget_outer, dtarget_neg, dx_center, dx_outer, dx_neg = m:backward({target_outer, target_neg, x_center, x_outer, x_neg}, dloss_m)
+    dtarget_outer, dtarget_neg, dx_center, dx_outer, dx_neg = unpack(m:backward({target_outer, target_neg, x_center, x_outer, x_neg}, dloss_m))
     dword_center = embed_center:backward(word_center, dx_center)
     dword_outer = embed_center:backward(word_outer, dx_outer)
     dword_neg = embed_center:backward(word_neg, dx_neg)
     
     -- clip gradient element-wise
     grad_params:clamp(-5, 5)
-
-
-    
-    
-    
-
+    return loss, grad_params
 
 end
 
 
 
-optim_state = {learningRate = 1e-2}
+optim_state = {learningRate = 1e-3}
 
 
-for i = 1, 10 do
-  local _, loss = optim.adagrad(feval, params, optim_state)
-  print(loss)
+for i = 1, 100000 do
+  if i % 100 == 0 then
+    local _, loss = optim.adagrad(feval, params, optim_state)
+    print(loss)
+  end
 
 end
 
