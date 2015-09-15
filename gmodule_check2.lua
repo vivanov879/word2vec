@@ -8,6 +8,7 @@ require 'table_utils'
 nngraph.setDebug(true)
 
 
+
 x_raw = nn.Identity()()
 x = nn.Linear(12, 5)(x_raw)
 x = nn.Tanh()(x)
@@ -38,9 +39,10 @@ target_outer = nn.Identity()()
 target_neg = nn.Identity()()
 loss1 = nn.MarginCriterion()({d_outer, target_outer})
 loss2 = nn.MarginCriterion()({d_neg, target_neg})
-m = nn.gModule({target_outer, target_neg, x_center, x_outer, x_neg}, {loss1, loss2})
+loss_m = nn.CAddTable()({loss1, loss2})
+m = nn.gModule({target_outer, target_neg, x_center, x_outer, x_neg}, {loss_m})
 
 
 
-local params, grad_params = model_utils.combine_all_parameters(m_d)
+local params, grad_params = model_utils.combine_all_parameters(m)
 params:uniform(-0.08, 0.08)
