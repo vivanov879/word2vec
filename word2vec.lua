@@ -160,8 +160,8 @@ function feval(x_arg)
     x_outer = embed_outer:forward(word_outer)
     x_neg = embed_outer:forward(word_neg)
     
-    target_outer = torch.ones(x_outer:size())
-    target_neg = torch.zeros(x_outer:size())
+    target_outer = torch.ones(x_outer:size(1), 1)
+    target_neg = torch.zeros(x_outer:size(1), 1)
     loss_m = m:forward({target_outer, target_neg, x_center, x_outer, x_neg})
     
     
