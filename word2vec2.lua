@@ -25,14 +25,16 @@ function read_words(fn)
   return sentences
 end
 
+
 function math.clamp(x, min_val, max_val)
   if x < min_val then
     x = min_val
-  elseif max_val then
+  elseif x > max_val then
     x = max_val
   end
   return x
 end
+
 
 function convert2tensors(sentences)
   l = {}
@@ -161,20 +163,22 @@ function feval(x_arg)
     x_outer = embed_outer:forward(word_outer)
     x_neg = embed_outer:forward(word_neg)
     
-    target_outer = torch.ones(x_outer:size(1), 1)
-    target_neg = torch.zeros(x_outer:size(1), 1)
-    loss_m = m:forward({target_outer, target_neg, x_center, x_outer, x_neg})
+    target_outer = torch.Tensor(x_outer:size(1), 1):fill(1)
+    target_neg = torch.Tensor(x_neg:size(1), 1):fill(-1)
     
+    loss_m = m:forward({target_outer, target_neg, x_center, x_outer, x_neg})
+    loss = loss + loss_m[1] 
     
     -- complete reverse order of the above
     dloss_m = torch.ones(loss_m:size())
-    dtarget_outer, dtarget_neg, dx_center, dx_outer, dx_neg = m:backward({target_outer, target_neg, x_center, x_outer, x_neg}, dloss_m)
+    dtarget_outer, dtarget_neg, dx_center, dx_outer, dx_neg = unpack(m:backward({target_outer, target_neg, x_center, x_outer, x_neg}, dloss_m))
     dword_center = embed_center:backward(word_center, dx_center)
     dword_outer = embed_center:backward(word_outer, dx_outer)
     dword_neg = embed_center:backward(word_neg, dx_neg)
     
     -- clip gradient element-wise
     grad_params:clamp(-5, 5)
+    return loss, grad_params
 
 
     
@@ -189,10 +193,12 @@ end
 optim_state = {learningRate = 1e-2}
 
 
-for i = 1, 10 do
+for i = 1, 1000 do
+
   local _, loss = optim.adagrad(feval, params, optim_state)
-  print(loss)
+  if i % 10 == 0 then
+    print(loss)
+  end
 
 end
-
 

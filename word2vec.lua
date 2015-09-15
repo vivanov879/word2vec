@@ -28,11 +28,12 @@ end
 function math.clamp(x, min_val, max_val)
   if x < min_val then
     x = min_val
-  elseif max_val then
+  elseif x > max_val then
     x = max_val
   end
   return x
 end
+
 
 function convert2tensors(sentences)
   l = {}
@@ -157,8 +158,8 @@ function feval(x_arg)
     
     d_outer, d_neg = unpack(m:forward({x_center, x_outer, x_neg}))
     
-    target_outer = torch.ones(x_outer:size(1), 1)
-    target_neg = torch.zeros(x_outer:size(1), 1)
+    target_outer = torch.Tensor(x_outer:size(1), 1):fill(1)
+    target_neg = torch.Tensor(x_outer:size(1), 1):fill(-1)
     
     loss1 = criterion1:forward(d_outer, target_outer)
     loss2 = criterion2:forward(d_neg, target_neg)
@@ -186,9 +187,11 @@ optim_state = {learningRate = 1e-3}
 
 
 for i = 1, 1000 do
+
   local _, loss = optim.adagrad(feval, params, optim_state)
-  print(loss)
+  if i % 100 == 0 then
+    print(loss)
+  end
 
 end
-
 

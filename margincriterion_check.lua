@@ -27,7 +27,7 @@ criterion=nn.MarginCriterion(1)
 
 for i = 1, 1000 do
    gradUpdate(mlp, x1, torch.Tensor(1):fill(1), criterion, 0.01)
-   --gradUpdate(mlp, x2, torch.Tensor(1):fill(1), criterion, 0.01)
+   gradUpdate(mlp, x2, torch.Tensor(1):fill(-1), criterion, 0.01)
 end
 
 print(mlp:forward(x1))
