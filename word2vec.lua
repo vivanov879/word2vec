@@ -66,7 +66,7 @@ end
 
 max_sentence_len = calc_max_sentence_len(sentences_en)
 context_size = 6
-batch_size = 5
+batch_size = 100
 data_index = 1
 
 function gen_batch()
@@ -135,6 +135,8 @@ embed_outer = Embedding(vocab_size, 12)
 local params, grad_params = model_utils.combine_all_parameters(m, embed_center, embed_outer)
 params:uniform(-0.08, 0.08)
 
+
+
 criterion1 = nn.MarginCriterion()
 criterion2 = nn.MarginCriterion()
 
@@ -167,12 +169,12 @@ function feval(x_arg)
     loss = loss + loss1 + loss2
     
     -- complete reverse order of the above
-    dloss1 = torch.ones(5,1)
-    dloss2 = torch.ones(5,1)
+    dloss1 = torch.ones(x_outer:size(1),1)
+    dloss2 = torch.ones(x_outer:size(1),1)
     dx_center, dx_outer, dx_neg = unpack(m:backward({x_center, x_outer, x_neg}, {dloss1, dloss2}))
     dword_center = embed_center:backward(word_center, dx_center)
-    dword_outer = embed_center:backward(word_outer, dx_outer)
-    dword_neg = embed_center:backward(word_neg, dx_neg)
+    dword_outer = embed_outer:backward(word_outer, dx_outer)
+    dword_neg = embed_outer:backward(word_neg, dx_neg)
     
     -- clip gradient element-wise
     grad_params:clamp(-5, 5)
@@ -183,14 +185,16 @@ end
 
 
 
-optim_state = {learningRate = 1e-3}
+optim_state = {learningRate = 1e-4}
 
 
-for i = 1, 1000 do
+for i = 1, 10000 do
 
   local _, loss = optim.adagrad(feval, params, optim_state)
   if i % 100 == 0 then
     print(loss)
+    print(grad_params:max())
+
   end
 
 end

@@ -65,7 +65,7 @@ end
 
 max_sentence_len = calc_max_sentence_len(sentences_en)
 context_size = 6
-batch_size = 5
+batch_size = 100
 data_index = 1
 
 function gen_batch()
@@ -142,6 +142,9 @@ embed_outer = Embedding(vocab_size, 12)
 local params, grad_params = model_utils.combine_all_parameters(m, embed_center, embed_outer)
 params:uniform(-0.08, 0.08)
 
+embed_outer_clones = model_utils.clone_many_times(embed_outer, 2)
+
+
 function feval(x_arg)
     if x_arg ~= params then
         params:copy(x_arg)
@@ -157,8 +160,8 @@ function feval(x_arg)
         
     ------------------- forward pass -------------------
     x_center = embed_center:forward(word_center)
-    x_outer = embed_outer:forward(word_outer)
-    x_neg = embed_outer:forward(word_neg)
+    x_outer = embed_outer_clones[1]:forward(word_outer)
+    x_neg = embed_outer_clones[2]:forward(word_neg)
     
     target_outer = torch.Tensor(x_outer:size(1), 1):fill(1)
     target_neg = torch.Tensor(x_neg:size(1), 1):fill(-1)
@@ -171,8 +174,8 @@ function feval(x_arg)
     dloss_m = torch.ones(loss_m:size())
     dtarget_outer, dtarget_neg, dx_center, dx_outer, dx_neg = unpack(m:backward({target_outer, target_neg, x_center, x_outer, x_neg}, dloss_m))
     dword_center = embed_center:backward(word_center, dx_center)
-    dword_outer = embed_center:backward(word_outer, dx_outer)
-    dword_neg = embed_center:backward(word_neg, dx_neg)
+    dword_outer = embed_outer_clones[1]:backward(word_outer, dx_outer)
+    dword_neg = embed_outer_clones[2]:backward(word_neg, dx_neg)
     
     -- clip gradient element-wise
     grad_params:clamp(-5, 5)
@@ -183,7 +186,7 @@ end
 
 optim_state = {learningRate = 1e-2}
 
-for i = 1, 1000 do
+for i = 1, 100000 do
   local _, loss = optim.adagrad(feval, params, optim_state)
   if i % 100 == 0 then
     print(loss)

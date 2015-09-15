@@ -173,8 +173,8 @@ function feval(x_arg)
     dloss_m = torch.ones(loss_m:size())
     dtarget_outer, dtarget_neg, dx_center, dx_outer, dx_neg = unpack(m:backward({target_outer, target_neg, x_center, x_outer, x_neg}, dloss_m))
     dword_center = embed_center:backward(word_center, dx_center)
-    dword_outer = embed_center:backward(word_outer, dx_outer)
-    dword_neg = embed_center:backward(word_neg, dx_neg)
+    dword_outer = embed_outer:backward(word_outer, dx_outer)
+    dword_neg = embed_outer:backward(word_neg, dx_neg)
     
     -- clip gradient element-wise
     grad_params:clamp(-5, 5)
