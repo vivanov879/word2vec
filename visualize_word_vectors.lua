@@ -20,5 +20,24 @@ for _, i in pairs(visualize_words) do
   
 end
 
+m, x = unpack(torch.load('model'))
+
+mean = x:mean(1)
+std = x:std(1)
+
+mean_expanded = torch.expand(mean, x:size(1), x:size(2))
+std_expanded = torch.expand(std, x:size(1), x:size(2))
+
+x = x:add(-mean_expanded)
+x = x:cdiv(std_expanded)
+
+u,s,v = torch.svd(x)
+
+
+
+
+a = 1
+
+
 
 

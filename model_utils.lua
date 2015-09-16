@@ -1,5 +1,4 @@
 require 'torch'
-require 'cutorch'
 
 local model_utils = {}
 
