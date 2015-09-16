@@ -38,7 +38,7 @@ fd = io.lines('datasetSentences')
 words_count = {}
 words = {}
 sentences = {}
-vocab_size = 10000
+vocab_size = 20000
 line = fd()
 while line do
   sentence = {}
