@@ -38,12 +38,12 @@ fd = io.lines('datasetSentences')
 words_count = {}
 words = {}
 sentences = {}
-vocab_size = 20000
+vocab_size = 10000
 line = fd()
 while line do
   sentence = {}
-  for _, word in pairs(string.split(line, " ")) do
-    if not word2omit(word) then
+  for i, word in pairs(string.split(line, " ")) do
+    if i ~= 1 and (not word2omit(word)) then
       sentence[#sentence + 1] = word
     end
   end
