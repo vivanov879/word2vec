@@ -174,7 +174,7 @@ for i = 1, 1000000 do
   end
   
   if i % 10000 == 0 then
-    torch.save('neural_network', {m})
+    torch.save('model', {m})
   end
   
 end
