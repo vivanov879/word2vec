@@ -1,4 +1,4 @@
-Torch implementation of word2vec.
+Torch implementation of word2vec. Trains using negative sampling. 
 
 1. Run 'th filter_sentences.lua' to generate vocabulary of words and then write sentences to file using this vocabulary
 2. Run 'th word2vec.lua' to train the word2vec model
