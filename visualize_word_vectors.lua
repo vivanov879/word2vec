@@ -45,7 +45,7 @@ print(x_projected)
 gnuplot.plot(x_projected, '.')
 for i = 1, visualize_indexes:size(1) do 
   --gnuplot.raw(" set label 'ward' at ( 0.12, 0.54 ) ")
-  gnuplot.raw(" set label '" .. visualize_words[i] .. "' at ( " .. x_projected[i][1] .. " , " .. x_projected[i][2] .. " ) " )
+  gnuplot.raw(" set label '" .. visualize_words[i] .. "' at " .. x_projected[i][1] .. "," .. x_projected[i][2] .. " " )
 end
 a = 1
 
