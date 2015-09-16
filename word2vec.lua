@@ -128,7 +128,7 @@ z = nn.Power(2)(z)
 
 m = nn.gModule({word_center, word_outer}, {z})
 
-local params, grad_params = model_utils.combine_all_parameters(m, embed_center, embed_outer)
+local params, grad_params = model_utils.combine_all_parameters(m)
 params:uniform(-0.08, 0.08)
 
 criterion = nn.MarginCriterion()
@@ -172,6 +172,10 @@ for i = 1, 1000000 do
   if i % 100 == 0 then
     print(loss)
   end
-
+  
+  if i % 10000 == 0 then
+    torch.save('neural_network', {m})
+  end
+  
 end
 
