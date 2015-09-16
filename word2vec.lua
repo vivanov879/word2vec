@@ -126,7 +126,7 @@ x_center = nn.MulConstant(-1)(x_center)
 z = nn.CAddTable()({x_outer, x_center})
 z = nn.Power(2)(z)
 
-m = nn.gModule({word_center, word_outer}, {z})
+m = nn.gModule({word_center, word_outer}, {z, x_outer, x_center})
 
 local params, grad_params = model_utils.combine_all_parameters(m)
 params:uniform(-0.08, 0.08)
@@ -147,13 +147,15 @@ function feval(x_arg)
     target_outer = torch.Tensor(word_outer:size(1), 10):fill(target)
         
     ------------------- forward pass -------------------
-    z = m:forward({word_center, word_outer})
+    z, x_outer, x_center = unpack(m:forward({word_center, word_outer}))
     loss_m = criterion:forward(z, target_outer)
     loss = loss + loss_m
     
     -- complete reverse order of the above
+    dx_outer = torch.zeros(x_outer:size())
+    dx_center = torch.zeros(x_center:size())
     dz = criterion:backward(z, target_outer)
-    dword_center, dword_outer = unpack(m:backward({word_center, word_outer}, dz))
+    dword_center, dword_outer = unpack(m:backward({word_center, word_outer}, {dz, dx_outer, dx_center}))
     
     -- clip gradient element-wise
     grad_params:clamp(-5, 5)
@@ -174,7 +176,7 @@ for i = 1, 1000000 do
   end
   
   if i % 10000 == 0 then
-    torch.save('model', {m})
+    torch.save('model', m)
   end
   
 end

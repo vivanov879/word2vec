@@ -20,7 +20,9 @@ for _, i in pairs(visualize_words) do
   
 end
 
-m, x = unpack(torch.load('model'))
+m = torch.load('model')
+
+
 
 mean = x:mean(1)
 std = x:std(1)
