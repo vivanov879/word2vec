@@ -20,6 +20,6 @@ for i = 1, x:size(1) do
 end
 
 
-gnuplot.plot(x, y)
+gnuplot.plot(x, y, '.')
 
 a = 1

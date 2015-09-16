@@ -6,7 +6,7 @@ require 'Embedding'
 local model_utils=require 'model_utils'
 require 'table_utils'
 nngraph.setDebug(true)
-
+require 'gnuplot'
 
 inv_vocabulary_en = table.load('inv_vocabulary_en')
 vocabulary_en = table.load('vocabulary_en')
@@ -41,8 +41,12 @@ u,s,v = torch.svd(covariance)
 
 u_reduced = u[{{}, {1, 2}}]
 x_projected = torch.mm(x, u_reduced)
-
-
+print(x_projected)
+gnuplot.plot(x_projected, '.')
+for i = 1, visualize_indexes:size(1) do 
+  --gnuplot.raw(" set label 'ward' at ( 0.12, 0.54 ) ")
+  gnuplot.raw(" set label '" .. visualize_words[i] .. "' at ( " .. x_projected[i][1] .. " , " .. x_projected[i][2] .. " ) " )
+end
 a = 1
 
 
