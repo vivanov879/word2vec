@@ -11,22 +11,16 @@ nngraph.setDebug(true)
 inv_vocabulary_en = table.load('inv_vocabulary_en')
 vocabulary_en = table.load('vocabulary_en')
 
-visualize_words = {"the", "a", "an", ",", ".", "?", "!", "``", "''", "--", "good", "great", "cool", "brilliant", "wonderful", "well", "amazing", "worth", "sweet", "enjoyable", "boring", "bad", "waste", "dumb", "annoying"}
-visualize_indexes = {}
-for _, i in pairs(visualize_words) do 
-  
-  visualize_indexes[#visualize_indexes + 1] = inv_vocabulary_en[visualize_words[i]]
-  
-  
+visualize_words = {"the", "a", "an", "``", "good", "great", "cool", "brilliant", "wonderful", "well", "amazing", "worth", "sweet", "enjoyable", "boring", "bad", "waste", "dumb", "annoying"}
+visualize_indexes = torch.Tensor(#visualize_words)
+for i, _ in pairs(visualize_words) do 
+  visualize_indexes[i] = inv_vocabulary_en[visualize_words[i]]
 end
 
 m = torch.load('model')
 
-word_center = torch.Tensor(#vocabulary_en)
-for i = 1, #vocabulary_en do 
-  word_center[i] = i
-end
-word_outer = word_center:clone()
+word_center = visualize_indexes:clone()
+word_outer = visualize_indexes:clone()
 
 _, x_outer, x_center = unpack(m:forward({word_center, word_outer}))
 
