@@ -45,7 +45,8 @@ covariance = torch.mm(x:t(), x)
 
 u,s,v = torch.svd(covariance)
 
-
+u_reduced = u[{{}, {1, 2}}]
+x_projected = torch.mm(x, u_reduced)
 
 
 a = 1
