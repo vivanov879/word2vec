@@ -48,6 +48,7 @@ phrases = read_words('dictionary')
 sentiment_lables = read_words('sentiment_labels')
 assert(#phrases == #sentiment_lables)
 phrases_filtered = {}
+phrases_filtered_text = {}
 sentiment_lables_filtered = {}
 
 for _, sentence in pairs(phrases) do
@@ -63,6 +64,8 @@ for _, sentence in pairs(phrases) do
       t[{{i}, {}}] = word_vectors[{{short_sentence[i]}, {}}]
     end
     phrases_filtered[#phrases_filtered + 1] = t:mean(1)
+    phrases_filtered_text[#phrases_filtered_text + 1] = short_sentence
+
     sentiment_labels_sentence = sentiment_lables[tonumber(sentence[#sentence])]
     sentiment_lables_filtered[#sentiment_lables_filtered + 1] = tonumber(sentiment_labels_sentence[#sentiment_labels_sentence])
   end
@@ -76,6 +79,6 @@ for i, _ in pairs(phrases_filtered) do
   sentiment_lables_filtered_tensor[{{i}, {}}] = sentiment_lables_filtered[i]
 end
 
-torch.save('sentiment_features_and_labels', {phrases_filtered_tensor, sentiment_lables_filtered_tensor})
+torch.save('sentiment_features_and_labels', {phrases_filtered_tensor, sentiment_lables_filtered_tensor, phrases_filtered_text})
 
 
