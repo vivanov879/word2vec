@@ -76,10 +76,10 @@ end
 
 
 phrases_filtered_tensor = torch.Tensor(#phrases_filtered, word_vectors:size(2))
-sentiment_lables_filtered_tensor = torch.Tensor(#phrases_filtered, 1)
+sentiment_lables_filtered_tensor = torch.Tensor(#phrases_filtered)
 for i, _ in pairs(phrases_filtered) do 
   phrases_filtered_tensor[{{i}, {}}] = phrases_filtered[i]
-  sentiment_lables_filtered_tensor[{{i}, {}}] = sentiment_lables_filtered[i]
+  sentiment_lables_filtered_tensor[{{i}}] = sentiment_lables_filtered[i]
 end
 
 torch.save('sentiment_features_and_labels', {phrases_filtered_tensor, sentiment_lables_filtered_tensor, phrases_filtered_text})

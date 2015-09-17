@@ -14,7 +14,10 @@ vocabulary_en = table.load('vocabulary_en')
 
 phrases_filtered_tensor, sentiment_lables_filtered_tensor, phrases_filtered_text = unpack(torch.load('sentiment_features_and_labels'))
 
-batch_size = 100
+assert (phrases_filtered_tensor:size(1) == sentiment_lables_filtered_tensor:size(1))
+assert (phrases_filtered_tensor:size(1) == #phrases_filtered_text)
+
+batch_size = 2
 data_index = 1
 n_data = phrases_filtered_tensor:size(1)
 
@@ -26,8 +29,8 @@ function gen_batch()
   end
   start_index = end_index - batch_size
   
-  features = phrases_filtered_tensor[{{data_index, data_index + batch_size}, {}}]
-  labels = sentiment_lables_filtered_tensor[{{data_index, data_index + batch_size}, {}}]
+  features = phrases_filtered_tensor[{{data_index, data_index + batch_size - 1}, {}}]
+  labels = sentiment_lables_filtered_tensor[{{data_index, data_index + batch_size - 1}}]
   text_first_sentence = phrases_filtered_text[data_index]
   text_first_sentence_readable = {}
   for i, word in pairs(text_first_sentence) do 
