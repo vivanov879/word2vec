@@ -85,7 +85,7 @@ end
 
 
 
-optim_state = {learningRate = 1e-5}
+optim_state = {learningRate = 1e-3}
 
 
 for i = 1, 1000000 do
