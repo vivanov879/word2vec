@@ -31,9 +31,9 @@ end
 
 
 x_raw = nn.Identity()()
-x = nn.Linear(phrases_filtered_tensor:size(2), 50)(x_raw)
+x = nn.Linear(phrases_filtered_tensor:size(2), 5)(x_raw)
 x = nn.Tanh()(x)
-x = nn.Linear(50, 1)(x)
+x = nn.Linear(5, 1)(x)
 x = nn.Sigmoid()(x)
 m = nn.gModule({x_raw}, {x})
 
@@ -80,7 +80,7 @@ optim_state = {learningRate = 1e-5}
 for i = 1, 1000000 do
 
   local _, loss = optim.adagrad(feval, params, optim_state)
-  if i % 100 == 0 then
+  if i % 1000 == 0 then
     print(loss)
   end
   
