@@ -9,10 +9,9 @@ nngraph.setDebug(true)
 
 phrases_filtered_tensor, sentiment_lables_filtered_tensor, phrases_filtered_text = unpack(torch.load('sentiment_features_and_labels'))
 
-batch_size = 100
+batch_size = 10000
 data_index = 1
 n_data = phrases_filtered_tensor:size(1)
-
 
 function gen_batch()
   end_index = data_index + batch_size
@@ -65,6 +64,9 @@ function feval(x_arg)
     dprediction = criterion:backward(prediction, labels)
     dfeatures = m:backward(features, dprediction)
     
+    -- clip gradient element-wise
+    grad_params:clamp(-5, 5)
+    
     return loss, grad_params
 
 end
@@ -78,7 +80,7 @@ optim_state = {learningRate = 1e-5}
 for i = 1, 1000000 do
 
   local _, loss = optim.adagrad(feval, params, optim_state)
-  if i % 1000 == 0 then
+  if i % 100 == 0 then
     print(loss)
   end
   
