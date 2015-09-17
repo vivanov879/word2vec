@@ -15,7 +15,7 @@ trainSentences = [None for _ in range(nTrain)]
 
 for i in xrange(nTrain):
     trainWords, trainLabel = trainset[i]
-    trainLabels[i] = str(trainLabel) + '\n'
+    trainLabels[i] = str(trainLabel + 1) + '\n'
     trainSentences[i] = ' '.join(trainWords) + '\n'
 
 with open('trainSentences_raw', 'w') as f:

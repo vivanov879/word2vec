@@ -44,8 +44,8 @@ end
 x_raw = nn.Identity()()
 x = nn.Linear(phrases_filtered_tensor:size(2), 20)(x_raw)
 x = nn.Tanh()(x)
-x = nn.Linear(20, 1)(x)
-x = nn.Sigmoid()(x)
+x = nn.Linear(20, 5)(x)
+x = nn.LogSoftMax()(x)
 m = nn.gModule({x_raw}, {x})
 
 
@@ -53,7 +53,7 @@ local params, grad_params = model_utils.combine_all_parameters(m)
 params:uniform(-0.08, 0.08)
 
 
-criterion = nn.MSECriterion()
+criterion = nn.ClassNLLCriterion()
 
 
 function feval(x_arg)
