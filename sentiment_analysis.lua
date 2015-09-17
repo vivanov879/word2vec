@@ -7,51 +7,12 @@ local model_utils=require 'model_utils'
 require 'table_utils'
 nngraph.setDebug(true)
 
-function read_words(fn)
-  fd = io.lines(fn)
-  sentences = {}
-  line = fd()
-
-  while line do
-    sentence = {}
-    for _, word in pairs(string.split(line, " ")) do
-        sentence[#sentence + 1] = word
-    end
-    sentences[#sentences + 1] = sentence
-    line = fd()
-  end
-  return sentences
-end
-
-
-inv_vocabulary_en = table.load('inv_vocabulary_en')
-vocabulary_en = table.load('vocabulary_en')
-
-indexes = torch.Tensor(#vocabulary_en)
-for i = 1, indexes:size(1) do 
-  indexes[i] = i
-end
-
-m = torch.load('model')
-
-word_center = indexes:clone()
-word_outer = indexes:clone()
-
-_, x_outer, x_center = unpack(m:forward({word_center, word_outer}))
-
-word_vectors = x_outer + x_center
-
-
-dictionary = read_words('dictionary_sorted_by_index')
-sentiment_labels_sentences = read_words('sentiment_labels')
-sentiment_labels = {}
-
-for i, sentence in pairs(sentiment_labels_sentences) do 
-  sentiment_labels[tonumber(sentence[1])] = tonumber(sentence[#sentence])
-end
+phrases_filtered_tensor, sentiment_lables_filtered_tensor, phrases_filtered_text = unpack(torch.load('sentiment_features_and_labels'))
 
 batch_size = 100
 data_index = 1
+n_data = phrases_filtered_tensor:size(1)
+
 
 function gen_batch()
   end_index = data_index + batch_size
@@ -60,30 +21,73 @@ function gen_batch()
     data_index = 1
   end
   start_index = end_index - batch_size
-
-  sentences = dictionary
   
-  local batch = torch.zeros(batch_size, word_vectors:size(2))
-  
-  if data_index % 2 == 0 then
-    target = -1
-  end
-  for k = 1, batch_size do
-    
-    
-    sentence = sentences[start_index + k - 1]
-    
-    
-    
-  end
+  features = phrases_filtered_tensor[{{data_index, data_index + batch_size}, {}}]
+  labels = sentiment_lables_filtered_tensor[{{data_index, data_index + batch_size}, {}}]
+      
   data_index = data_index + 1
-  if data_index > n_data then 
-    data_index = 1
-  end
-  return batch, target
+  
+  return features, labels
+end
+
+
+x_raw = nn.Identity()()
+x = nn.Linear(phrases_filtered_tensor:size(2), 50)(x_raw)
+x = nn.Tanh()(x)
+x = nn.Linear(50, 1)(x)
+x = nn.Sigmoid()(x)
+m = nn.gModule({x_raw}, {x})
+
+
+local params, grad_params = model_utils.combine_all_parameters(m)
+params:uniform(-0.08, 0.08)
+
+
+criterion = nn.MSECriterion()
+
+
+function feval(x_arg)
+    if x_arg ~= params then
+        params:copy(x_arg)
+    end
+    grad_params:zero()
+    
+    local loss = 0
+    
+    features, labels = gen_batch()
+            
+    ------------------- forward pass -------------------
+    prediction = m:forward(features)
+    loss_m = criterion:forward(prediction, labels)
+    loss = loss + loss_m
+    
+    -- complete reverse order of the above
+    dprediction = criterion:backward(prediction, labels)
+    dfeatures = m:backward(features, dprediction)
+    
+    return loss, grad_params
+
 end
 
 
 
 
-a = 1
+optim_state = {learningRate = 1e-5}
+
+
+for i = 1, 1000000 do
+
+  local _, loss = optim.adagrad(feval, params, optim_state)
+  if i % 1000 == 0 then
+    print(loss)
+  end
+  
+end
+
+
+
+
+
+
+
+pass_dummy = 1
