@@ -94,6 +94,7 @@ for i = 1, 1000000 do
   if i % 1000 == 0 then
     print(text_first_sentence_readable)
     local _, predicted_class  = prediction:max(2)
+    print(prediction)
     print(string.format("predicted class = %d, target class = %d, loss = %6.8f, gradnorm = %6.4e", predicted_class[1][1], labels[1], loss[1], grad_params:norm()))
 
     
