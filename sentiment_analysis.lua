@@ -14,7 +14,7 @@ vocabulary_en = table.load('vocabulary_en')
 
 phrases_filtered_tensor, sentiment_lables_filtered_tensor, phrases_filtered_text = unpack(torch.load('sentiment_features_and_labels'))
 
-batch_size = 10000
+batch_size = 100
 data_index = 1
 n_data = phrases_filtered_tensor:size(1)
 
@@ -42,9 +42,9 @@ end
 
 
 x_raw = nn.Identity()()
-x = nn.Linear(phrases_filtered_tensor:size(2), 5)(x_raw)
+x = nn.Linear(phrases_filtered_tensor:size(2), 20)(x_raw)
 x = nn.Tanh()(x)
-x = nn.Linear(5, 1)(x)
+x = nn.Linear(20, 1)(x)
 x = nn.Sigmoid()(x)
 m = nn.gModule({x_raw}, {x})
 
@@ -85,15 +85,16 @@ end
 
 
 
-optim_state = {learningRate = 1e-3}
+optim_state = {learningRate = 1e-4}
 
 
 for i = 1, 1000000 do
 
   local _, loss = optim.adagrad(feval, params, optim_state)
-  if i % 1000 == 0 then
-    print(text_first_sentence_readable,prediction[1], labels[1])
-    print(loss)
+  if i % 10000 == 0 then
+    print(text_first_sentence_readable)
+    print(prediction[1], labels[1], loss)
+    
     
     
   end
