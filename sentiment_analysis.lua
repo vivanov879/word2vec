@@ -17,7 +17,7 @@ phrases_filtered_tensor, sentiment_lables_filtered_tensor, phrases_filtered_text
 assert (phrases_filtered_tensor:size(1) == sentiment_lables_filtered_tensor:size(1))
 assert (phrases_filtered_tensor:size(1) == #phrases_filtered_text)
 
-batch_size = 2
+batch_size = 1000
 data_index = 1
 n_data = phrases_filtered_tensor:size(1)
 
@@ -88,15 +88,17 @@ end
 
 
 
-optim_state = {learningRate = 1e-4}
+optim_state = {learningRate = 1e-1}
 
 
 for i = 1, 1000000 do
 
   local _, loss = optim.adagrad(feval, params, optim_state)
-  if i % 10000 == 0 then
+  if i % 1000 == 0 then
     print(text_first_sentence_readable)
-    print(prediction[1], labels[1], loss)
+    local _, predicted_class  = prediction:max(2)
+
+    print(predicted_class[1], labels[1], loss)
     
     
     
