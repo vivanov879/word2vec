@@ -66,7 +66,7 @@ end
 
 max_sentence_len = calc_max_sentence_len(sentences_en)
 context_size = 10
-batch_size = 100
+batch_size = 1000
 data_index = 1
 
 function gen_batch()
