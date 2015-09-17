@@ -24,23 +24,58 @@ function read_words(fn)
   return sentences
 end
 
+
+inv_vocabulary_en = table.load('inv_vocabulary_en')
+vocabulary_en = table.load('vocabulary_en')
+
+
+indexes = torch.Tensor(#vocabulary_en)
+for i = 1, indexes:size(1) do 
+  indexes[i] = i
+end
+
+m = torch.load('model')
+
+word_center = indexes:clone()
+word_outer = indexes:clone()
+
+_, x_outer, x_center = unpack(m:forward({word_center, word_outer}))
+
+word_vectors = x_outer + x_center
+
+
 phrases = read_words('dictionary')
-dictionary = {}
+sentiment_lables = read_words('sentiment_labels')
+assert(#phrases == #sentiment_lables)
+phrases_filtered = {}
+sentiment_lables_filtered = {}
 
 for _, sentence in pairs(phrases) do
-  
-  short_sentence = {}
+  local short_sentence = {}
   for i, word in pairs(sentence) do
-    if i ~= #sentence then 
-      short_sentence[#short_sentence + 1] = word
+    if i ~= #sentence and inv_vocabulary_en[word] ~= nil then 
+      short_sentence[#short_sentence + 1] = inv_vocabulary_en[word]
     end
   end
-  dictionary[tonumber(sentence[#sentence])] = short_sentence
-  
+  if #short_sentence > 0 then
+    local t = torch.Tensor(#short_sentence, word_vectors:size(2))
+    for i, word in pairs(short_sentence) do 
+      t[{{i}, {}}] = word_vectors[{{short_sentence[i]}, {}}]
+    end
+    phrases_filtered[#phrases_filtered + 1] = t:mean(1)
+    sentiment_labels_sentence = sentiment_lables[tonumber(sentence[#sentence])]
+    sentiment_lables_filtered[#sentiment_lables_filtered + 1] = tonumber(sentiment_labels_sentence[#sentiment_labels_sentence])
+  end
 end
 
-
-fd = io.open('dictionary_sorted_by_index', 'w')
-for _, sentence in pairs(dictionary) do
-  fd:write(table.concat(sentence, ' ') .. '\n')
+assert(#sentiment_lables_filtered == #phrases_filtered)
+phrases_filtered_tensor = torch.Tensor(#phrases_filtered, word_vectors:size(2))
+sentiment_lables_filtered_tensor = torch.Tensor(#phrases_filtered, 1)
+for i, _ in pairs(phrases_filtered) do 
+  phrases_filtered_tensor[{{i}, {}}] = phrases_filtered[i]
+  sentiment_lables_filtered_tensor[{{i}, {}}] = sentiment_lables_filtered[i]
 end
+
+torch.save('sentiment_features_and_labels', {phrases_filtered_tensor, sentiment_lables_filtered_tensor})
+
+
