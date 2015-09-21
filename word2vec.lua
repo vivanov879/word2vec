@@ -8,7 +8,6 @@ require 'table_utils'
 nngraph.setDebug(true)
 
 
---train data
 function read_words(fn)
   fd = io.lines(fn)
   sentences = {}
