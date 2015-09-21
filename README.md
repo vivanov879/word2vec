@@ -1,4 +1,4 @@
-Torch implementation of word2vec and sentiment analysis as explained in cs224d assignment 1. Negative sampling loss function and max-margin learning are used for word2vec. 
+Torch implementation of word2vec and sentiment analysis as explained in assignment1.pdf. Negative sampling loss function and max-margin learning are used for word2vec. 
 
 1. In Terminal.app, run 'th filter_sentences.lua' to generate vocabulary of words and then write sentences to file using this vocabulary
 2. Run 'th word2vec.lua' to train the word2vec model
