@@ -170,7 +170,7 @@ for i = 1, 1000000 do
     print(loss)
   end
   
-  if i % 10000 == 0 then
+  if i % 1000 == 0 then
     torch.save('model', m)
   end
   
