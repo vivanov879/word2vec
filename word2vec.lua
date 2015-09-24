@@ -81,7 +81,7 @@ function gen_batch()
   
   local batch = torch.zeros(batch_size, 3)
   local target = 1
-  if data_index % 2 == 0 then
+  if math.random() > 0.5 then
     target = -1
   end
   for k = 1, batch_size do
@@ -126,7 +126,7 @@ m = nn.gModule({word_center, word_outer}, {z, x_outer, x_center})
 local params, grad_params = model_utils.combine_all_parameters(m)
 params:uniform(-0.08, 0.08)
 
-criterion = nn.MarginCriterion(5)
+criterion = nn.MarginCriterion()
 
 function feval(x_arg)
     if x_arg ~= params then
