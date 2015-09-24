@@ -73,10 +73,10 @@ function gen_batch()
   if end_index > n_data then
     end_index = n_data
     data_index = 1
-
   end
   start_index = end_index - batch_size
-
+  data_index = data_index + batch_size
+  
   sentences = sentences_en
   
   local batch = torch.zeros(batch_size, 3)
@@ -98,10 +98,6 @@ function gen_batch()
     else 
       batch[k][2] = neg_word
     end
-  end
-  data_index = data_index + 1
-  if data_index > n_data then 
-    data_index = 1
   end
   return batch, target
 end
