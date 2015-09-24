@@ -44,6 +44,7 @@ _, x_outer, x_center = unpack(m:forward({word_center, word_outer}))
 
 x = torch.add(x_outer, x_center)
 
+--[[
 mean = x:mean(1)
 std = x:std(1)
 
@@ -52,6 +53,7 @@ std_expanded = torch.expand(std, x:size(1), x:size(2))
 
 x = x:add(-mean_expanded)
 x = x:cdiv(std_expanded)
+]]--
 
 word_vectors = x
 
@@ -75,7 +77,6 @@ for index_phrases, sentence in pairs(phrases) do
       t[{{i}, {}}] = word_vectors[{{short_sentence[i]}, {}}]
     end
     phrases_filtered[#phrases_filtered + 1] = t:mean(1)
-    print(t:mean(1))
     phrases_filtered_text[#phrases_filtered_text + 1] = short_sentence
 
     sentiment_labels_sentence = sentiment_lables[index_phrases]
@@ -96,4 +97,5 @@ end
 
 torch.save('sentiment_features_and_labels', {phrases_filtered_tensor, sentiment_lables_filtered_tensor, phrases_filtered_text})
 
+print(phrases_filtered_tensor)
 

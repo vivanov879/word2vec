@@ -11,7 +11,7 @@ require 'gnuplot'
 inv_vocabulary_en = table.load('inv_vocabulary_en')
 vocabulary_en = table.load('vocabulary_en')
 
-visualize_words = {"the", "a", "an", "``", "good", "great", "cool", "brilliant", "wonderful", "well", "amazing", "worth", "sweet", "enjoyable", "boring", "bad", "waste", "dumb", "annoying"}
+visualize_words = {".", ",", "the", "a", "an", "``", "good", "great", "cool", "brilliant", "wonderful", "well", "amazing", "worth", "sweet", "enjoyable", "boring", "bad", "waste", "dumb", "annoying"}
 visualize_indexes = torch.Tensor(#visualize_words)
 for i, _ in pairs(visualize_words) do 
   visualize_indexes[i] = inv_vocabulary_en[visualize_words[i]]
