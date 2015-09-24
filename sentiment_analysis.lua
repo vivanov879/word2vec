@@ -32,7 +32,7 @@ function gen_batch()
   
   features = phrases_filtered_tensor[{{start_index, end_index - 1}, {}}]
   labels = sentiment_lables_filtered_tensor[{{start_index, end_index - 1}}]
-  text_first_sentence = phrases_filtered_text[data_index]
+  text_first_sentence = phrases_filtered_text[start_index]
   text_first_sentence_readable = {}
   for i, word in pairs(text_first_sentence) do 
     text_first_sentence_readable[#text_first_sentence_readable + 1] = vocabulary_en[word]
@@ -86,7 +86,7 @@ end
 
 
 
-optim_state = {learningRate = 1e-2}
+optim_state = {learningRate = 1e-1}
 
 
 for i = 1, 1000000 do
@@ -97,6 +97,7 @@ for i = 1, 1000000 do
     local _, predicted_class  = prediction:max(2)
     print(prediction[{1, {}}])
     print(string.format("predicted class = %d, target class = %d, loss = %6.8f, gradnorm = %6.4e", predicted_class[1][1], labels[1], loss[1], grad_params:norm()))
+    print(params:clone():pow(2):sum())
 
     
     
