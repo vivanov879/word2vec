@@ -116,9 +116,9 @@ x_outer = nn.Linear(12, 5)(x_outer)
 x_outer= nn.Tanh()(x_outer)
 x_outer = nn.Linear(5, 10)(x_outer)
 
-x_center = nn.MulConstant(-1)(x_center)
+x_center_minus = nn.MulConstant(-1)(x_center)
 
-z = nn.CAddTable()({x_outer, x_center})
+z = nn.CAddTable()({x_outer, x_center_minus})
 z = nn.Power(2)(z)
 
 m = nn.gModule({word_center, word_outer}, {z, x_outer, x_center})
