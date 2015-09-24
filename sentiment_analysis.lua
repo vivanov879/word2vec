@@ -32,7 +32,18 @@ function gen_batch()
   
   features = phrases_filtered_tensor[{{start_index, end_index - 1}, {}}]
   labels = sentiment_lables_filtered_tensor[{{start_index, end_index - 1}}]
-  return features, labels
+  
+    text_first_sentence = phrases_filtered_text[start_index]
+  text_first_sentence_readable = {}
+  for i, word in pairs(text_first_sentence) do 
+    text_first_sentence_readable[#text_first_sentence_readable + 1] = vocabulary_en[word]
+  end
+  text_first_sentence_readable = table.concat(text_first_sentence_readable, ' ')
+      
+  data_index = data_index + 1
+  
+  return features, labels, text_first_sentence_readable
+
 end
 
 
@@ -59,7 +70,7 @@ function feval(x_arg)
     
     local loss = 0
     
-    features, labels = gen_batch()
+    features, labels, text_first_sentence_readable = gen_batch()
             
     ------------------- forward pass -------------------
     prediction = m:forward(features)
@@ -84,7 +95,11 @@ for i = 1, 1000000 do
 
   local _, loss = optim.adagrad(feval, params, optim_state)
   if i % 100 == 0 then
-    print(string.format("loss = %6.8f, gradnorm = %6.4e", loss[1], grad_params:norm()))
+    print(text_first_sentence_readable)
+    local _, predicted_class  = prediction:max(2)
+    print(prediction[{1, {}}])
+    print(string.format("predicted class = %d, target class = %d, loss = %6.8f, gradnorm = %6.4e", predicted_class[1][1], labels[1], loss[1], grad_params:norm()))
+    print(params:clone():pow(2):sum())
     
   end
   
