@@ -126,7 +126,7 @@ m = nn.gModule({word_center, word_outer}, {z, x_outer, x_center})
 local params, grad_params = model_utils.combine_all_parameters(m)
 params:uniform(-0.08, 0.08)
 
-criterion = nn.MarginCriterion()
+criterion = nn.MarginCriterion(5)
 
 function feval(x_arg)
     if x_arg ~= params then
@@ -160,12 +160,12 @@ end
 
 
 
-optim_state = {learningRate = 1e-3}
+optim_state = {learningRate = 1e-1}
 
 
 for i = 1, 1000000 do
 
-  local _, loss = optim.adagrad(feval, params, optim_state)
+  local _, loss = optim.adam(feval, params, optim_state)
   if i % 100 == 0 then
     print(loss)
   end

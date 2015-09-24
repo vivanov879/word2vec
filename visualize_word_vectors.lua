@@ -24,7 +24,7 @@ word_outer = visualize_indexes:clone()
 
 _, x_outer, x_center = unpack(m:forward({word_center, word_outer}))
 
-x = x_outer + x_center
+x = torch.add(x_outer, x_center)
 
 mean = x:mean(1)
 std = x:std(1)

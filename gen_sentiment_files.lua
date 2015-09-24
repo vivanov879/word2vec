@@ -34,15 +34,26 @@ for i = 1, indexes:size(1) do
   indexes[i] = i
 end
 
-m = torch.load('model')
-
 word_center = indexes:clone()
 word_outer = indexes:clone()
 
+
+m = torch.load('model')
+
 _, x_outer, x_center = unpack(m:forward({word_center, word_outer}))
 
-word_vectors = x_outer + x_center
+x = torch.add(x_outer, x_center)
 
+mean = x:mean(1)
+std = x:std(1)
+
+mean_expanded = torch.expand(mean, x:size(1), x:size(2))
+std_expanded = torch.expand(std, x:size(1), x:size(2))
+
+x = x:add(-mean_expanded)
+x = x:cdiv(std_expanded)
+
+word_vectors = x
 
 phrases = read_words('trainSentences')
 sentiment_lables = read_words('trainLabels')
@@ -64,6 +75,7 @@ for index_phrases, sentence in pairs(phrases) do
       t[{{i}, {}}] = word_vectors[{{short_sentence[i]}, {}}]
     end
     phrases_filtered[#phrases_filtered + 1] = t:mean(1)
+    print(t:mean(1))
     phrases_filtered_text[#phrases_filtered_text + 1] = short_sentence
 
     sentiment_labels_sentence = sentiment_lables[index_phrases]
