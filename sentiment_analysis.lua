@@ -28,9 +28,10 @@ function gen_batch()
     data_index = 1
   end
   start_index = end_index - batch_size
+  data_index = data_index + batch_size
   
-  features = phrases_filtered_tensor[{{data_index, data_index + batch_size - 1}, {}}]
-  labels = sentiment_lables_filtered_tensor[{{data_index, data_index + batch_size - 1}}]
+  features = phrases_filtered_tensor[{{start_index, end_index - 1}, {}}]
+  labels = sentiment_lables_filtered_tensor[{{start_index, end_index - 1}}]
   text_first_sentence = phrases_filtered_text[data_index]
   text_first_sentence_readable = {}
   for i, word in pairs(text_first_sentence) do 
@@ -85,13 +86,13 @@ end
 
 
 
-optim_state = {learningRate = 1e-1}
+optim_state = {learningRate = 1e-2}
 
 
 for i = 1, 1000000 do
 
-  local _, loss = optim.adagrad(feval, params, optim_state)
-  if i % 1000 == 0 then
+  local _, loss = optim.adam(feval, params, optim_state)
+  if i % 100 == 0 then
     print(text_first_sentence_readable)
     local _, predicted_class  = prediction:max(2)
     print(prediction[{1, {}}])
