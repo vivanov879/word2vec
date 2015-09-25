@@ -37,7 +37,7 @@ fd = io.lines('datasetSentences')
 words_count = {}
 words = {}
 sentences = {}
-vocab_size = 2000
+vocab_size = 19000
 line = fd()
 while line do
   sentence = {}
@@ -78,10 +78,6 @@ for i = 1, vocab_size do
   vocabulary[i] = words[i]
   inv_vocabulary[words[i]] = i
 end
-vocabulary[#vocabulary + 1] = 'UNK'
-inv_vocabulary['UNK'] = #vocabulary
-vocabulary[#vocabulary + 1] = 'EOS'
-inv_vocabulary['EOS'] = #vocabulary
 
 table.save(vocabulary, vocabulary_fn)
 table.save(inv_vocabulary, inv_vocabulary_fn)
@@ -111,7 +107,7 @@ for i = 1, #sentences do
   if should_reverse then 
     filtered_sentence = table.reverse(filtered_sentence)
   end
-  if #filtered_sentence >1 then
+  if #filtered_sentence > 5 then
     filtered_sentences[#filtered_sentences + 1] = filtered_sentence
   end
   
@@ -144,7 +140,6 @@ end
 print(torch.mean(sentence_lengths), torch.std(sentence_lengths), torch.max(sentence_lengths))
 print(torch.mean(filtered_sentence_lengths), torch.std(filtered_sentence_lengths), torch.min(filtered_sentence_lengths), torch.max(filtered_sentence_lengths))
 
-print(#filtered_sentences)
 
 
 fd = io.open(filtered_sentences_fn, 'w')

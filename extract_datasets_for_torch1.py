@@ -9,14 +9,6 @@ dataset = StanfordSentiment()
 tokens = dataset.tokens()
 nWords = len(tokens)
 
-num_to_word = {}
-word_to_num = tokens
-
-for (k, v) in word_to_num:
-    num_to_word[v] = k
-
-
-
 
 def extract(trainset, fn_words, fn_labels):
 
