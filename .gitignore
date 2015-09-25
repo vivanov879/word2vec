@@ -9,3 +9,4 @@ inv_vocabulary_en
 model
 filter_sentences_output
 sentiment_features_and_labels
+*.t7
