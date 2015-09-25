@@ -64,7 +64,7 @@ function calc_max_sentence_len(sentences)
 end
 
 max_sentence_len = calc_max_sentence_len(sentences_en)
-context_size = 10
+context_size = 5
 batch_size = 1000
 data_index = 1
 
@@ -76,26 +76,30 @@ function gen_batch()
   else
     data_index = data_index + batch_size
   end
-    
   sentences = sentences_en
-  
-  local current_batch_size = end_index - start_index + 1
-  local batch = torch.zeros(current_batch_size, 3)
-  local target = math.random() > 0.5 and 1 or -1
-  for k = 1, current_batch_size do
+  negative_samples_num = 7
+  basic_batch_size = (start_index - end_index - 1)
+  local features = torch.Tensor( (context_size * (1 + negative_samples_num)) * basic_batch_size, 2)
+  local labels = torch.Tensor( features:size(1))
+  for k = 1, current_batch_size do    
     sentence = sentences[start_index + k - 1]
     center_word_index = math.random(2, #sentence-1)
     center_word = sentence[center_word_index]
-    context_index = center_word_index + (math.random() > 0.5 and 1 or -1) * math.random(1, math.floor(context_size/2))
-    context_index = math.clamp(context_index, 1, #sentence)
-    outer_word = sentence[context_index]
-    neg_word = math.random(#vocabulary_en)
-    batch[k][1] = center_word
-    if target == 1 then
-      batch[k][2] = outer_word
-    else 
-      batch[k][2] = neg_word
-    end
+    
+    for i = -context_size, context_size do
+      if i ~= 0 then 
+        context_index = center_word_index + i
+        context_index = math.clamp(context_index, 1, #sentence)
+        outer_word = sentence[context_index]
+        neg_word = math.random(#vocabulary_en)
+        batch[k][1] = center_word
+        batch[k][2] = outer_word
+        batch
+        if target == 1 then
+          batch[k][2] = outer_word
+        else 
+          batch[k][2] = neg_word
+        end
   end
   return batch, target
 end
