@@ -87,7 +87,7 @@ function gen_batch()
   end
   for k = 1, current_batch_size do
     sentence = sentences[start_index + k - 1]
-    center_word_index = math.random(#sentence)
+    center_word_index = math.random(2, #sentence-1)
     center_word = sentence[center_word_index]
     context_index = center_word_index + (math.random() > 0.5 and 1 or -1) * math.random(2, math.floor(context_size/2))
     context_index = math.clamp(context_index, 1, #sentence)
@@ -169,6 +169,7 @@ for i = 1, 1000000 do
   local _, loss = optim.adam(feval, params, optim_state)
   if i % 100 == 0 then
     print(loss)
+    
   end
   
   if i % 1000 == 0 then
