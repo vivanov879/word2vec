@@ -38,12 +38,11 @@ word_center = indexes:clone()
 word_outer = indexes:clone()
 
 
-m = torch.load('model')
+m = torch.load('model.t7')
 
 _, x_outer, x_center = unpack(m:forward({word_center, word_outer}))
 
 x = torch.add(x_outer, x_center)
-print(x_outer:size())
 
 --[[
 mean = x:mean(1)

@@ -47,7 +47,7 @@ function convert2tensors(sentences)
 end
 
 
-sentences, vocabulary, inv_vocabulary = unpack(torch.load('filter_sentences_output'))
+sentences, vocabulary, inv_vocabulary = unpack(torch.load('filter_sentences_output.t7'))
 
 n_data = #sentences
 vocab_size = #vocabulary
@@ -136,7 +136,6 @@ function feval(x_arg)
     
     center_words, outer_words, labels = gen_batch()
     
-    
     ------------------- forward pass -------------------
     z, x_outer, x_center = unpack(m:forward({center_words, outer_words}))
     loss_m = criterion:forward(z, labels)
@@ -148,8 +147,7 @@ function feval(x_arg)
     dz = criterion:backward(z, labels)
     dcenter_words, douter_words = unpack(m:backward({center_words, outer_words}, {dz, dx_outer, dx_center}))
     
-    -- clip gradient element-wise
-    grad_params:clamp(-5, 5)
+
     return loss, grad_params
 
 end
@@ -167,7 +165,7 @@ for i = 1, 1000000 do
   end
   
   if i % 10 == 0 then
-    torch.save('model', m)
+    torch.save('model.t7', m)
   end
   
 end

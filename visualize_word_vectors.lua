@@ -17,7 +17,7 @@ for i, _ in pairs(visualize_words) do
   visualize_indexes[i] = inv_vocabulary_en[visualize_words[i]]
 end
 
-m = torch.load('model')
+m = torch.load('model.t7')
 
 word_center = visualize_indexes:clone()
 word_outer = visualize_indexes:clone()

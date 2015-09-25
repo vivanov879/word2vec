@@ -120,7 +120,7 @@ print(torch.mean(sentence_lengths), torch.std(sentence_lengths), torch.max(sente
 print(torch.mean(filtered_sentence_lengths), torch.std(filtered_sentence_lengths), torch.min(filtered_sentence_lengths), torch.max(filtered_sentence_lengths))
 
 
-torch.save('filter_sentences_output', {filtered_sentences_indexes, vocabulary, inv_vocabulary})
+torch.save('filter_sentences_output.t7', {filtered_sentences_indexes, vocabulary, inv_vocabulary})
 
 a = 1
 
