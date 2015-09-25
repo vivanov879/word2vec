@@ -47,7 +47,7 @@ function convert2tensors(sentences)
 end
 
 
-sentences_en = read_words('filtered_datasetSentences_indexes_en')
+sentences_en = read_words('filtered_datasetSentences_indexes_en1')
 
 n_data = #sentences_en
 
@@ -64,8 +64,9 @@ function calc_max_sentence_len(sentences)
 end
 
 max_sentence_len = calc_max_sentence_len(sentences_en)
-context_size = 5
-batch_size = 1000
+context_size = 2
+batch_size = 2
+n_data = batch_size * math.floor(n_data/batch_size)
 data_index = 1
 
 function gen_batch()
@@ -77,31 +78,34 @@ function gen_batch()
     data_index = data_index + batch_size
   end
   sentences = sentences_en
-  negative_samples_num = 7
-  basic_batch_size = (start_index - end_index - 1)
-  local features = torch.Tensor( (context_size * (1 + negative_samples_num)) * basic_batch_size, 2)
+  neg_samples_num = 3
+  basic_batch_size = batch_size
+  local features = torch.Tensor( (2*context_size * (1 + neg_samples_num)) * basic_batch_size, 2)
   local labels = torch.Tensor( features:size(1))
-  for k = 1, current_batch_size do    
+  row = 1
+  for k = 1, basic_batch_size do    
     sentence = sentences[start_index + k - 1]
     center_word_index = math.random(2, #sentence-1)
     center_word = sentence[center_word_index]
-    
     for i = -context_size, context_size do
       if i ~= 0 then 
         context_index = center_word_index + i
         context_index = math.clamp(context_index, 1, #sentence)
         outer_word = sentence[context_index]
-        neg_word = math.random(#vocabulary_en)
-        batch[k][1] = center_word
-        batch[k][2] = outer_word
-        batch
-        if target == 1 then
-          batch[k][2] = outer_word
-        else 
-          batch[k][2] = neg_word
-        end
+        features[{{row}, {1}}]:fill(center_word)
+        features[row][2] = outer_word
+        labels[row] = 1
+        row = row + 1
+        neg_samples = torch.rand(neg_samples_num):mul(vocab_size):byte():double():add(1)
+        features[{{row, row+neg_samples_num-1}, 2}] = neg_samples
+        features[{{row, row+neg_samples_num-1}, 1}]:fill(center_word)
+        labels[{{row, row+neg_samples_num-1}}] = torch.Tensor(neg_samples_num):fill(-1)
+        row = row + neg_samples_num
+        dummy_pass = 1
+      end
+    end
   end
-  return batch, target
+  return features, labels
 end
 
 word_center = nn.Identity()()
@@ -138,7 +142,7 @@ function feval(x_arg)
     
     local loss = 0
     
-    batch, target = gen_batch()
+    features, labels = gen_batch()
     word_center = batch[{{},1}]
     word_outer = batch[{{},2}]
     target_outer = torch.Tensor(word_outer:size(1), 10):fill(target)
