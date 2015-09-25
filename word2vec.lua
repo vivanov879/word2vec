@@ -69,22 +69,23 @@ batch_size = 1000
 data_index = 1
 
 function gen_batch()
-  end_index = data_index + batch_size
-  if end_index > n_data then
-    end_index = n_data
+  start_index = data_index
+  end_index = math.min(n_data, start_index + batch_size - 1)
+  if end_index == n_data then
     data_index = 1
+  else
+    data_index = data_index + batch_size
   end
-  start_index = end_index - batch_size
-  data_index = data_index + batch_size
-  
+    
   sentences = sentences_en
   
-  local batch = torch.zeros(batch_size, 3)
+  local current_batch_size = end_index - start_index + 1
+  local batch = torch.zeros(current_batch_size, 3)
   local target = 1
   if math.random() > 0.5 then
     target = -1
   end
-  for k = 1, batch_size do
+  for k = 1, current_batch_size do
     sentence = sentences[start_index + k - 1]
     center_word_index = math.random(#sentence)
     center_word = sentence[center_word_index]

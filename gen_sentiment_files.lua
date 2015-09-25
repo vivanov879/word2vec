@@ -57,8 +57,8 @@ x = x:cdiv(std_expanded)
 
 word_vectors = x
 
-phrases = read_words('trainSentences')
-sentiment_lables = read_words('trainLabels')
+phrases = read_words('trainSentences1')
+sentiment_lables = read_words('trainLabels1')
 assert(#phrases == #sentiment_lables)
 phrases_filtered = {}
 phrases_filtered_text = {}

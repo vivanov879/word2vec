@@ -17,31 +17,29 @@ phrases_filtered_tensor, sentiment_lables_filtered_tensor, phrases_filtered_text
 assert (phrases_filtered_tensor:size(1) == sentiment_lables_filtered_tensor:size(1))
 assert (phrases_filtered_tensor:size(1) == #phrases_filtered_text)
 
-batch_size = 1000
+batch_size = 10
 data_index = 1
 n_data = phrases_filtered_tensor:size(1)
 
 function gen_batch()
-  end_index = data_index + batch_size
-  if end_index > n_data then
-    end_index = n_data
+  start_index = data_index
+  end_index = math.min(n_data, start_index + batch_size - 1)
+  if end_index == n_data then
     data_index = 1
+  else
+    data_index = data_index + batch_size
   end
-  start_index = end_index - batch_size
-  data_index = data_index + batch_size
+    
+  features = phrases_filtered_tensor[{{start_index, end_index}, {}}]
+  labels = sentiment_lables_filtered_tensor[{{start_index, end_index}}]
   
-  features = phrases_filtered_tensor[{{start_index, end_index - 1}, {}}]
-  labels = sentiment_lables_filtered_tensor[{{start_index, end_index - 1}}]
-  
-    text_first_sentence = phrases_filtered_text[start_index]
+  text_first_sentence = phrases_filtered_text[start_index]
   text_first_sentence_readable = {}
   for i, word in pairs(text_first_sentence) do 
     text_first_sentence_readable[#text_first_sentence_readable + 1] = vocabulary_en[word]
   end
   text_first_sentence_readable = table.concat(text_first_sentence_readable, ' ')
-      
-  data_index = data_index + 1
-  
+ 
   return features, labels, text_first_sentence_readable
 
 end
