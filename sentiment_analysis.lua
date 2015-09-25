@@ -44,7 +44,7 @@ inv_vocabulary_en = table.load('inv_vocabulary_en')
 vocabulary_en = table.load('vocabulary_en')
 
 
-phrases_filtered_tensor, sentiment_lables_filtered_tensor, phrases_filtered_text = unpack(torch.load('sentiment_features_and_labels'))
+phrases_filtered_tensor, sentiment_lables_filtered_tensor, phrases_filtered_text = unpack(torch.load('sentiment_train.t7'))
 
 assert (phrases_filtered_tensor:size(1) == sentiment_lables_filtered_tensor:size(1))
 assert (phrases_filtered_tensor:size(1) == #phrases_filtered_text)
