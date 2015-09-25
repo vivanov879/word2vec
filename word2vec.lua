@@ -50,9 +50,6 @@ end
 sentences, vocabulary, inv_vocabulary = unpack(torch.load('filter_sentences_output'))
 
 n_data = #sentences
-
-vocabulary = table.load('vocabulary_en')
-inv_vocabulary = table.load('inv_vocabulary_en')
 vocab_size = #vocabulary
 
 

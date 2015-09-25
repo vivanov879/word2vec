@@ -30,7 +30,7 @@ end
 vocabulary_fn = 'vocabulary_en'
 inv_vocabulary_fn = 'inv_vocabulary_en'
 
-fd = io.lines('datasetSentences1')
+fd = io.lines('datasetSentences')
 words_count = {}
 words = {}
 sentences = {}
