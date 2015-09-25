@@ -110,14 +110,14 @@ end
 word_center = nn.Identity()()
 word_outer = nn.Identity()()
 
-x_center = Embedding(vocab_size, 12)(word_center)
-x_outer = Embedding(vocab_size, 12)(word_outer)
+x_center = Embedding(vocab_size, 10)(word_center)
+x_outer = Embedding(vocab_size, 10)(word_outer)
 
-x_center = nn.Linear(12, 5)(x_center)
+x_center = nn.Linear(10, 5)(x_center)
 x_center = nn.Tanh()(x_center)
 x_center = nn.Linear(5, 10)(x_center)
 
-x_outer = nn.Linear(12, 5)(x_outer)
+x_outer = nn.Linear(10, 5)(x_outer)
 x_outer= nn.Tanh()(x_outer)
 x_outer = nn.Linear(5, 10)(x_outer)
 
