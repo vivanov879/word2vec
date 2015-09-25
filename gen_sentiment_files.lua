@@ -37,64 +37,56 @@ end
 word_center = indexes:clone()
 word_outer = indexes:clone()
 
-
 m = torch.load('model.t7')
-
 _, x_outer, x_center = unpack(m:forward({word_center, word_outer}))
-
 x = torch.add(x_outer, x_center)
-
---[[
-mean = x:mean(1)
-std = x:std(1)
-
-mean_expanded = torch.expand(mean, x:size(1), x:size(2))
-std_expanded = torch.expand(std, x:size(1), x:size(2))
-
-x = x:add(-mean_expanded)
-x = x:cdiv(std_expanded)
-]]--
-
 word_vectors = x
 
-phrases = read_words('trainSentences')
-sentiment_lables = read_words('trainLabels')
-assert(#phrases == #sentiment_lables)
-phrases_filtered = {}
-phrases_filtered_text = {}
-sentiment_lables_filtered = {}
 
-for index_phrases, sentence in pairs(phrases) do
-  local short_sentence = {}
-  for i, word in pairs(sentence) do
-    if inv_vocabulary_en[word] ~= nil then 
-      short_sentence[#short_sentence + 1] = inv_vocabulary_en[word]
+function gen_sentiment_files(fn_sentences, fn_labels, fn_out)
+  phrases = read_words(fn_sentences)
+  sentiment_lables = read_words(fn_labels)
+  assert(#phrases == #sentiment_lables)
+  phrases_filtered = {}
+  phrases_filtered_text = {}
+  sentiment_lables_filtered = {}
+
+  for index_phrases, sentence in pairs(phrases) do
+    local short_sentence = {}
+    for i, word in pairs(sentence) do
+      if inv_vocabulary_en[word] ~= nil then 
+        short_sentence[#short_sentence + 1] = inv_vocabulary_en[word]
+      end
+    end
+    if #short_sentence > 1 then
+      local t = torch.Tensor(#short_sentence, word_vectors:size(2))
+      for i, word in pairs(short_sentence) do 
+        t[{{i}, {}}] = word_vectors[{{word}, {}}]
+      end
+      phrases_filtered[#phrases_filtered + 1] = t:mean(1)
+      phrases_filtered_text[#phrases_filtered_text + 1] = short_sentence
+
+      sentiment_labels_sentence = sentiment_lables[index_phrases]
+      sentiment_lables_filtered[#sentiment_lables_filtered + 1] = tonumber(sentiment_labels_sentence[1])
+      
+      assert(#sentiment_lables_filtered == #phrases_filtered)
+      
     end
   end
-  if #short_sentence > 1 then
-    local t = torch.Tensor(#short_sentence, word_vectors:size(2))
-    for i, word in pairs(short_sentence) do 
-      t[{{i}, {}}] = word_vectors[{{word}, {}}]
-    end
-    phrases_filtered[#phrases_filtered + 1] = t:mean(1)
-    phrases_filtered_text[#phrases_filtered_text + 1] = short_sentence
 
-    sentiment_labels_sentence = sentiment_lables[index_phrases]
-    sentiment_lables_filtered[#sentiment_lables_filtered + 1] = tonumber(sentiment_labels_sentence[1])
-    
-    assert(#sentiment_lables_filtered == #phrases_filtered)
-    
+
+  phrases_filtered_tensor = torch.Tensor(#phrases_filtered, word_vectors:size(2))
+  sentiment_lables_filtered_tensor = torch.Tensor(#phrases_filtered)
+  for i, _ in pairs(phrases_filtered) do 
+    phrases_filtered_tensor[{{i}, {}}] = phrases_filtered[i]
+    sentiment_lables_filtered_tensor[{{i}}] = sentiment_lables_filtered[i]
   end
+
+  torch.save(fn_out, {phrases_filtered_tensor, sentiment_lables_filtered_tensor, phrases_filtered_text})
+  print(phrases_filtered_tensor)
+
 end
 
 
-phrases_filtered_tensor = torch.Tensor(#phrases_filtered, word_vectors:size(2))
-sentiment_lables_filtered_tensor = torch.Tensor(#phrases_filtered)
-for i, _ in pairs(phrases_filtered) do 
-  phrases_filtered_tensor[{{i}, {}}] = phrases_filtered[i]
-  sentiment_lables_filtered_tensor[{{i}}] = sentiment_lables_filtered[i]
-end
-
-torch.save('sentiment_features_and_labels', {phrases_filtered_tensor, sentiment_lables_filtered_tensor, phrases_filtered_text})
-
-print(phrases_filtered_tensor)
+gen_sentiment_files('trainSentences', 'trainLabels', 'sentiment_train')
+gen_sentiment_files('devSentences', 'devLabels', 'sentiment_dev')
