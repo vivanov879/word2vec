@@ -15,11 +15,11 @@ end
 vocabulary_fn = 'vocabulary_en'
 inv_vocabulary_fn = 'inv_vocabulary_en'
 
-fd = io.lines('datasetSentences')
+fd = io.lines('trainSentences_raw')
 words_count = {}
 words = {}
 sentences = {}
-vocab_size = 19499
+vocab_size = 16000
 line = fd()
 while line do
   sentence = {}
@@ -89,7 +89,6 @@ for i = 1, #sentences do
   if #filtered_sentence > 5 then
     filtered_sentences[#filtered_sentences + 1] = filtered_sentence
   end
-  
 end
 
 --print(filtered_sentences)
@@ -113,14 +112,58 @@ for _, filtered_sentence in pairs(filtered_sentences) do
   filtered_sentences_indexes[#filtered_sentences_indexes + 1] = sentence
 end
 
---print(filtered_sentences_indexes)
 
 
 print(torch.mean(sentence_lengths), torch.std(sentence_lengths), torch.max(sentence_lengths))
 print(torch.mean(filtered_sentence_lengths), torch.std(filtered_sentence_lengths), torch.min(filtered_sentence_lengths), torch.max(filtered_sentence_lengths))
 
+torch.save('vocabulary.t7', {vocabulary, inv_vocabulary})
+torch.save('train_sentences.t7', filtered_sentences_indexes)
 
-torch.save('filter_sentences_output.t7', {filtered_sentences_indexes, vocabulary, inv_vocabulary})
+
+function read_words(fn)
+  fd = io.lines(fn)
+  sentences = {}
+  line = fd()
+
+  while line do
+    sentence = {}
+    for _, word in pairs(string.split(line, " ")) do
+        sentence[#sentence + 1] = word
+    end
+    sentences[#sentences + 1] = sentence
+    line = fd()
+  end
+  return sentences
+end
+
+sentences = read_words('devSentences_raw')
+
+filtered_sentences = {}
+for i = 1, #sentences do
+  sentence = sentences[i]
+  filtered_sentence = {}
+  for k = 1, #sentence do
+    word = sentence[k]
+    if in_array(word, vocabulary) then
+      filtered_sentence[#filtered_sentence + 1] = word
+    end
+  end
+  if #filtered_sentence > 5 then
+    filtered_sentences[#filtered_sentences + 1] = filtered_sentence
+  end
+end
+
+filtered_sentences_indexes = {}
+for _, filtered_sentence in pairs(filtered_sentences) do
+  sentence = {}
+  for _, word in pairs(filtered_sentence) do  
+    sentence[#sentence + 1] = inv_vocabulary[word]
+  end
+  filtered_sentences_indexes[#filtered_sentences_indexes + 1] = sentence
+end
+
+torch.save('dev_sentences.t7', filtered_sentences_indexes)
 
 a = 1
 
