@@ -88,5 +88,5 @@ function gen_sentiment_files(fn_sentences, fn_labels, fn_out)
 end
 
 
-gen_sentiment_files('trainSentences', 'trainLabels', 'sentiment_train')
-gen_sentiment_files('devSentences', 'devLabels', 'sentiment_dev')
+gen_sentiment_files('trainSentences', 'trainLabels', 'sentiment_train.t7')
+gen_sentiment_files('devSentences', 'devLabels', 'sentiment_dev.t7')
