@@ -80,8 +80,9 @@ function gen_batch()
   sentences = sentences_en
   neg_samples_num = 3
   basic_batch_size = batch_size
-  local features = torch.Tensor( (2*context_size * (1 + neg_samples_num)) * basic_batch_size, 2)
-  local labels = torch.Tensor( features:size(1))
+  local center_words = torch.Tensor( (2*context_size * (1 + neg_samples_num)) * basic_batch_size)
+  local outer_words = torch.Tensor( (2*context_size * (1 + neg_samples_num)) * basic_batch_size)
+  local labels = torch.Tensor( center_words:size(1))
   row = 1
   for k = 1, basic_batch_size do    
     sentence = sentences[start_index + k - 1]
@@ -92,20 +93,20 @@ function gen_batch()
         context_index = center_word_index + i
         context_index = math.clamp(context_index, 1, #sentence)
         outer_word = sentence[context_index]
-        features[{{row}, {1}}]:fill(center_word)
-        features[row][2] = outer_word
+        center_words[row] = center_word
+        outer_words[row] = outer_word
         labels[row] = 1
         row = row + 1
         neg_samples = torch.rand(neg_samples_num):mul(vocab_size):byte():double():add(1)
-        features[{{row, row+neg_samples_num-1}, 2}] = neg_samples
-        features[{{row, row+neg_samples_num-1}, 1}]:fill(center_word)
+        outer_words[{{row, row+neg_samples_num-1}}] = neg_samples
+        center_words[{{row, row+neg_samples_num-1}}]:fill(center_word)
         labels[{{row, row+neg_samples_num-1}}] = torch.Tensor(neg_samples_num):fill(-1)
         row = row + neg_samples_num
         dummy_pass = 1
       end
     end
   end
-  return features, labels
+  return center_words, outer_words, labels
 end
 
 word_center = nn.Identity()()
@@ -126,6 +127,7 @@ x_center_minus = nn.MulConstant(-1)(x_center)
 
 z = nn.CAddTable()({x_outer, x_center_minus})
 z = nn.Power(2)(z)
+z = nn.Sum(2)(z)
 
 m = nn.gModule({word_center, word_outer}, {z, x_outer, x_center})
 
@@ -142,21 +144,19 @@ function feval(x_arg)
     
     local loss = 0
     
-    features, labels = gen_batch()
-    word_center = batch[{{},1}]
-    word_outer = batch[{{},2}]
-    target_outer = torch.Tensor(word_outer:size(1), 10):fill(target)
+    center_words, outer_words, labels = gen_batch()
+    
         
     ------------------- forward pass -------------------
-    z, x_outer, x_center = unpack(m:forward({word_center, word_outer}))
-    loss_m = criterion:forward(z, target_outer)
+    z, x_outer, x_center = unpack(m:forward({center_words, outer_words}))
+    loss_m = criterion:forward(z, labels)
     loss = loss + loss_m
     
     -- complete reverse order of the above
     dx_outer = torch.zeros(x_outer:size())
     dx_center = torch.zeros(x_center:size())
-    dz = criterion:backward(z, target_outer)
-    dword_center, dword_outer = unpack(m:backward({word_center, word_outer}, {dz, dx_outer, dx_center}))
+    dz = criterion:backward(z, labels)
+    dcenter_words, douter_words = unpack(m:backward({center_words, outer_words}, {dz, dx_outer, dx_center}))
     
     -- clip gradient element-wise
     grad_params:clamp(-5, 5)
@@ -173,7 +173,7 @@ for i = 1, 1000000 do
 
   local _, loss = optim.adam(feval, params, optim_state)
   if i % 100 == 0 then
-    print(string.format( 'loss = %6.8f, target = %d', loss[1], target))
+    print(string.format( 'loss = %6.8f', loss[1]))
     
   end
   
