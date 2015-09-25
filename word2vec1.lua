@@ -8,7 +8,6 @@ require 'table_utils'
 nngraph.setDebug(true)
 
 
---train data
 function read_words(fn)
   fd = io.lines(fn)
   sentences = {}
@@ -33,6 +32,7 @@ function math.clamp(x, min_val, max_val)
   end
   return x
 end
+
 
 function convert2tensors(sentences)
   l = {}
@@ -64,83 +64,71 @@ function calc_max_sentence_len(sentences)
 end
 
 max_sentence_len = calc_max_sentence_len(sentences_en)
-context_size = 6
-batch_size = 10000
+context_size = 5
+batch_size = 1000
+n_data = batch_size * math.floor(n_data / batch_size)
 data_index = 1
 
 function gen_batch()
-  end_index = data_index + batch_size
-  if end_index > n_data then
-    end_index = n_data
+  start_index = data_index
+  end_index = math.min(n_data, start_index + batch_size - 1)
+  if end_index == n_data then
     data_index = 1
+  else
+    data_index = data_index + batch_size
   end
-  start_index = end_index - batch_size
-  data_index = data_index + batch_size
-  
+    
   sentences = sentences_en
   
-  local batch = torch.zeros(batch_size, 3)
-  for k = 1, batch_size do
+  local pos_input = torch.Tensor(batch_size, context_size)
+  local batch = torch.zeros(batch_size, context_size)
+  for k = 1, current_batch_size do
     sentence = sentences[start_index + k - 1]
-    center_word_index = math.random(#sentence)
+    center_word_index = math.random(2, #sentence -1 )
     center_word = sentence[center_word_index]
-    context_index = center_word_index + (math.random() > 0.5 and 1 or -1) * math.random(2, math.floor(context_size/2))
-    context_index = math.clamp(context_index, 1, #sentence)
-    outer_word = sentence[context_index]
-    neg_word = math.random(#vocabulary_en)
-    batch[k][1] = center_word
-    batch[k][2] = outer_word
-    batch[k][3] = neg_word
-    
+    for j = -context_size, context_size do
+      if j ~= 0 then
+        context_index = center_word_index + j
+        context_index = math.clamp(context_index, 1, #sentence)
+        outer_word = sentence[context_index]
+        neg_word = math.random(#vocabulary_en)
+        batch[k][1] = center_word
+        if target == 1 then
+          batch[k][2] = outer_word
+        else 
+          batch[k][2] = neg_word
+        end
+      end
+    end
   end
-
-  return batch
+  return batch, target
 end
 
+word_center = nn.Identity()()
+word_outer = nn.Identity()()
 
+x_center = Embedding(vocab_size, 12)(word_center)
+x_outer = Embedding(vocab_size, 12)(word_outer)
 
-x_raw = nn.Identity()()
-x = nn.Linear(12, 5)(x_raw)
-x = nn.Tanh()(x)
-x = nn.Linear(5, 10)(x)
-m1 = nn.gModule({x_raw}, {x})
+x_center = nn.Linear(12, 5)(x_center)
+x_center = nn.Tanh()(x_center)
+x_center = nn.Linear(5, 10)(x_center)
 
-m1_clones = model_utils.clone_many_times(m1, 2)
+x_outer = nn.Linear(12, 5)(x_outer)
+x_outer= nn.Tanh()(x_outer)
+x_outer = nn.Linear(5, 10)(x_outer)
 
-x_raw1 = nn.Identity()()
-x_raw2 = nn.Identity()()
-x1 = m1_clones[1]({x_raw1})
-x2 = m1_clones[2]({x_raw2})
+x_center_minus = nn.MulConstant(-1)(x_center)
 
-x1 = nn.MulConstant(-1)(x1)
-d = nn.CAddTable()({x1, x2})
-d = nn.Power(2)(d)
-d = nn.Sum(2)(d)
-m2 = nn.gModule({x_raw1, x_raw2}, {d})
+z = nn.CAddTable()({x_outer, x_center_minus})
+z = nn.Power(2)(z)
 
-m2_clones = model_utils.clone_many_times(m2, 2)
+m = nn.gModule({word_center, word_outer}, {z, x_outer, x_center})
 
-x_center = nn.Identity()()
-x_outer = nn.Identity()()
-x_neg = nn.Identity()()
-d_outer = m2_clones[1]({x_center, x_outer})
-d_neg = m2_clones[2]({x_center, x_neg})
-target_outer = nn.Identity()()
-target_neg = nn.Identity()()
-loss1 = nn.MarginCriterion()({d_outer, target_outer})
-loss2 = nn.MarginCriterion()({d_neg, target_neg})
-loss_m = nn.CAddTable()({loss1, loss2})
-m = nn.gModule({target_outer, target_neg, x_center, x_outer, x_neg}, {loss_m})
-
-
-embed_center = Embedding(vocab_size, 12)
-embed_outer = Embedding(vocab_size, 12)
-
-local params, grad_params = model_utils.combine_all_parameters(m, embed_center, embed_outer)
+local params, grad_params = model_utils.combine_all_parameters(m)
 params:uniform(-0.08, 0.08)
 
-embed_outer_clones = model_utils.clone_many_times(embed_outer, 2)
-
+criterion = nn.MarginCriterion()
 
 function feval(x_arg)
     if x_arg ~= params then
@@ -150,45 +138,43 @@ function feval(x_arg)
     
     local loss = 0
     
-    batch = gen_batch()
+    batch, target = gen_batch()
     word_center = batch[{{},1}]
     word_outer = batch[{{},2}]
-    word_neg = batch[{{},3}]
+    target_outer = torch.Tensor(word_outer:size(1), 10):fill(target)
         
     ------------------- forward pass -------------------
-    x_center = embed_center:forward(word_center)
-    x_outer = embed_outer_clones[1]:forward(word_outer)
-    x_neg = embed_outer_clones[2]:forward(word_neg)
-    
-    target_outer = torch.Tensor(x_outer:size(1), 1):fill(1)
-    target_neg = torch.Tensor(x_neg:size(1), 1):fill(-1)
-    
-    loss_m = m:forward({target_outer, target_neg, x_center, x_outer, x_neg})
-    loss = loss + loss_m[1]
-    
+    z, x_outer, x_center = unpack(m:forward({word_center, word_outer}))
+    loss_m = criterion:forward(z, target_outer)
+    loss = loss + loss_m
     
     -- complete reverse order of the above
-    dloss_m = torch.ones(loss_m:size())
-    dtarget_outer, dtarget_neg, dx_center, dx_outer, dx_neg = unpack(m:backward({target_outer, target_neg, x_center, x_outer, x_neg}, dloss_m))
-    dword_center = embed_center:backward(word_center, dx_center)
-    dword_outer = embed_outer_clones[1]:backward(word_outer, dx_outer)
-    dword_neg = embed_outer_clones[2]:backward(word_neg, dx_neg)
+    dx_outer = torch.zeros(x_outer:size())
+    dx_center = torch.zeros(x_center:size())
+    dz = criterion:backward(z, target_outer)
+    dword_center, dword_outer = unpack(m:backward({word_center, word_outer}, {dz, dx_outer, dx_center}))
     
     -- clip gradient element-wise
     grad_params:clamp(-5, 5)
-    
     return loss, grad_params
 
 end
 
-optim_state = {learningRate = 1e-2}
 
-for i = 1, 100000 do
-  local _, loss = optim.adagrad(feval, params, optim_state)
-  if i % 10 == 0 then
+
+optim_state = {learningRate = 1e-1}
+
+
+for i = 1, 1000000 do
+
+  local _, loss = optim.adam(feval, params, optim_state)
+  if i % 100 == 0 then
     print(loss)
   end
-
+  
+  if i % 1000 == 0 then
+    torch.save('model', m)
+  end
+  
 end
-
 
