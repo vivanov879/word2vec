@@ -47,23 +47,24 @@ function convert2tensors(sentences)
 end
 
 
-sentences_en = read_words('filtered_datasetSentences_indexes_en')
+sentences, vocabulary, inv_vocabulary = unpack(torch.load('filter_sentences_output'))
 
-n_data = #sentences_en
+n_data = #sentences
 
-vocabulary_en = table.load('vocabulary_en')
-vocab_size = #vocabulary_en
+vocabulary = table.load('vocabulary_en')
+inv_vocabulary = table.load('inv_vocabulary_en')
+vocab_size = #vocabulary
 
 
 function calc_max_sentence_len(sentences)
   local m = 1
-  for _, sentence in pairs(sentences_en) do
+  for _, sentence in pairs(sentences) do
     m = math.max(m, #sentence)
   end
   return m
 end
 
-max_sentence_len = calc_max_sentence_len(sentences_en)
+max_sentence_len = calc_max_sentence_len(sentences)
 context_size = 5
 batch_size = 1000
 neg_samples_num = 7
@@ -79,7 +80,6 @@ function gen_batch()
   else
     data_index = data_index + batch_size
   end
-  sentences = sentences_en
   basic_batch_size = batch_size
   local center_words = torch.Tensor( (2*context_size * (1 + neg_samples_num)) * basic_batch_size)
   local outer_words = torch.Tensor( (2*context_size * (1 + neg_samples_num)) * basic_batch_size)

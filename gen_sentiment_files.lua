@@ -71,10 +71,10 @@ for index_phrases, sentence in pairs(phrases) do
       short_sentence[#short_sentence + 1] = inv_vocabulary_en[word]
     end
   end
-  if #short_sentence > 0 then
+  if #short_sentence > 1 then
     local t = torch.Tensor(#short_sentence, word_vectors:size(2))
     for i, word in pairs(short_sentence) do 
-      t[{{i}, {}}] = word_vectors[{{short_sentence[i]}, {}}]
+      t[{{i}, {}}] = word_vectors[{{word}, {}}]
     end
     phrases_filtered[#phrases_filtered + 1] = t:mean(1)
     phrases_filtered_text[#phrases_filtered_text + 1] = short_sentence
@@ -98,4 +98,3 @@ end
 torch.save('sentiment_features_and_labels', {phrases_filtered_tensor, sentiment_lables_filtered_tensor, phrases_filtered_text})
 
 print(phrases_filtered_tensor)
-

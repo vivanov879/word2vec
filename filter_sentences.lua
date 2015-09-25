@@ -29,11 +29,8 @@ end
 
 vocabulary_fn = 'vocabulary_en'
 inv_vocabulary_fn = 'inv_vocabulary_en'
-filtered_sentences_fn = 'filtered_datasetSentences'
-filtered_sentences_indexes_fn = 'filtered_datasetSentences_indexes_en'
-should_reverse = false
 
-fd = io.lines('datasetSentences')
+fd = io.lines('datasetSentences1')
 words_count = {}
 words = {}
 sentences = {}
@@ -104,10 +101,7 @@ for i = 1, #sentences do
       filtered_sentence[#filtered_sentence + 1] = word
     end
   end
-  if should_reverse then 
-    filtered_sentence = table.reverse(filtered_sentence)
-  end
-  if #filtered_sentence > 5 then
+  if #filtered_sentence > 3 then
     filtered_sentences[#filtered_sentences + 1] = filtered_sentence
   end
   
@@ -141,16 +135,7 @@ print(torch.mean(sentence_lengths), torch.std(sentence_lengths), torch.max(sente
 print(torch.mean(filtered_sentence_lengths), torch.std(filtered_sentence_lengths), torch.min(filtered_sentence_lengths), torch.max(filtered_sentence_lengths))
 
 
-
-fd = io.open(filtered_sentences_fn, 'w')
-for _, sentence in pairs(filtered_sentences) do
-  fd:write(table.concat(sentence, ' ') .. '\n')
-end
-
-fd = io.open(filtered_sentences_indexes_fn, 'w')
-for _, sentence in pairs(filtered_sentences_indexes) do
-  fd:write(table.concat(sentence, ' ')  .. '\n')
-end
+torch.save('filter_sentences_output', {filtered_sentences_indexes, vocabulary, inv_vocabulary})
 
 a = 1
 
