@@ -110,16 +110,8 @@ end
 word_center = nn.Identity()()
 word_outer = nn.Identity()()
 
-x_center = Embedding(vocab_size, 10)(word_center)
-x_outer = Embedding(vocab_size, 10)(word_outer)
-
-x_center = nn.Linear(10, 5)(x_center)
-x_center = nn.Tanh()(x_center)
-x_center = nn.Linear(5, 10)(x_center)
-
-x_outer = nn.Linear(10, 5)(x_outer)
-x_outer= nn.Tanh()(x_outer)
-x_outer = nn.Linear(5, 10)(x_outer)
+x_center = Embedding(vocab_size, 100)(word_center)
+x_outer = Embedding(vocab_size, 100)(word_outer)
 
 x_center_minus = nn.MulConstant(-1)(x_center)
 
@@ -130,7 +122,7 @@ z = nn.Sum(2)(z)
 m = nn.gModule({word_center, word_outer}, {z, x_outer, x_center})
 
 local params, grad_params = model_utils.combine_all_parameters(m)
-params:uniform(-0.15, 0.15)
+params:uniform(-0.08, 0.08)
 
 criterion = nn.MarginCriterion()
 
@@ -164,7 +156,7 @@ end
 
 
 
-optim_state = {learningRate = 1e-1}
+optim_state = {learningRate = 1e-2}
 
 
 for i = 1, 1000000 do

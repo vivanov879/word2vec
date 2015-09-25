@@ -43,6 +43,7 @@ m = torch.load('model')
 _, x_outer, x_center = unpack(m:forward({word_center, word_outer}))
 
 x = torch.add(x_outer, x_center)
+print(x_outer:size())
 
 --[[
 mean = x:mean(1)

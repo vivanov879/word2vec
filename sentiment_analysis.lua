@@ -78,9 +78,9 @@ end
 
 
 x_raw = nn.Identity()()
-x = nn.Linear(phrases_filtered_tensor:size(2), 20)(x_raw)
+x = nn.Linear(phrases_filtered_tensor:size(2), 200)(x_raw)
 x = nn.Tanh()(x)
-x = nn.Linear(20, 5)(x)
+x = nn.Linear(200, 5)(x)
 x = nn.LogSoftMax()(x)
 m = nn.gModule({x_raw}, {x})
 
