@@ -47,7 +47,7 @@ function convert2tensors(sentences)
 end
 
 
-sentences_en = read_words('filtered_datasetSentences_indexes_en1')
+sentences_en = read_words('filtered_datasetSentences_indexes_en')
 
 n_data = #sentences_en
 
@@ -64,8 +64,10 @@ function calc_max_sentence_len(sentences)
 end
 
 max_sentence_len = calc_max_sentence_len(sentences_en)
-context_size = 2
-batch_size = 2
+context_size = 5
+batch_size = 1000
+neg_samples_num = 7
+
 n_data = batch_size * math.floor(n_data/batch_size)
 data_index = 1
 
@@ -78,7 +80,6 @@ function gen_batch()
     data_index = data_index + batch_size
   end
   sentences = sentences_en
-  neg_samples_num = 3
   basic_batch_size = batch_size
   local center_words = torch.Tensor( (2*context_size * (1 + neg_samples_num)) * basic_batch_size)
   local outer_words = torch.Tensor( (2*context_size * (1 + neg_samples_num)) * basic_batch_size)
@@ -172,12 +173,12 @@ optim_state = {learningRate = 1e-1}
 for i = 1, 1000000 do
 
   local _, loss = optim.adam(feval, params, optim_state)
-  if i % 100 == 0 then
+  if i % 1 == 0 then
     print(string.format( 'loss = %6.8f', loss[1]))
     
   end
   
-  if i % 1000 == 0 then
+  if i % 10 == 0 then
     torch.save('model', m)
   end
   
