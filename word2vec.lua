@@ -147,7 +147,7 @@ function feval(x_arg)
     
     center_words, outer_words, labels = gen_batch()
     
-        
+    
     ------------------- forward pass -------------------
     z, x_outer, x_center = unpack(m:forward({center_words, outer_words}))
     loss_m = criterion:forward(z, labels)
