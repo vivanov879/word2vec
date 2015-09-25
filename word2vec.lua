@@ -64,7 +64,7 @@ end
 max_sentence_len = calc_max_sentence_len(sentences)
 context_size = 5
 batch_size = 1000
-neg_samples_num = 7
+neg_samples_num = 10
 
 n_data = batch_size * math.floor(n_data/batch_size)
 data_index = 1
@@ -95,7 +95,7 @@ function gen_batch()
         outer_words[row] = outer_word
         labels[row] = 1
         row = row + 1
-        neg_samples = torch.rand(neg_samples_num):mul(vocab_size):byte():double():add(1)
+        neg_samples = torch.rand(neg_samples_num):mul(vocab_size):floor():add(1)
         outer_words[{{row, row+neg_samples_num-1}}] = neg_samples
         center_words[{{row, row+neg_samples_num-1}}]:fill(center_word)
         labels[{{row, row+neg_samples_num-1}}] = torch.Tensor(neg_samples_num):fill(-1)
@@ -130,7 +130,7 @@ z = nn.Sum(2)(z)
 m = nn.gModule({word_center, word_outer}, {z, x_outer, x_center})
 
 local params, grad_params = model_utils.combine_all_parameters(m)
-params:uniform(-0.08, 0.08)
+params:uniform(-0.15, 0.15)
 
 criterion = nn.MarginCriterion()
 
@@ -172,7 +172,6 @@ for i = 1, 1000000 do
   local _, loss = optim.adam(feval, params, optim_state)
   if i % 1 == 0 then
     print(string.format( 'loss = %6.8f', loss[1]))
-    
   end
   
   if i % 10 == 0 then
