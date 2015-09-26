@@ -44,7 +44,7 @@ inv_vocabulary_en = table.load('inv_vocabulary_en')
 vocabulary_en = table.load('vocabulary_en')
 
 features_train, labels_train, text_train = unpack(torch.load('sentiment_train.t7'))
-phrases_dev, labels_dev, text_dev= unpack(torch.load('sentiment_dev.t7'))
+features_dev, labels_dev, text_dev= unpack(torch.load('sentiment_dev.t7'))
 
 
 assert (features_train:size(1) == labels_train:size(1))
