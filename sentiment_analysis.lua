@@ -133,7 +133,7 @@ for i = 1, 1000000 do
     
     local features = features_dev[{{}, {}}]
     local labels = labels_dev[{{}}]
-    local prediction, h = unpack(m:forward(features))
+    local prediction = m:forward(features)
     local _, predicted_class  = prediction:max(2)
     local loss_dev = criterion:forward(prediction, labels)
     local f1_score_dev, precision_dev, recall_dev = unpack(calc_f1(predicted_class, torch.reshape(labels, predicted_class:size(1), predicted_class:size(2))))
