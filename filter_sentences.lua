@@ -15,11 +15,11 @@ end
 vocabulary_fn = 'vocabulary_en'
 inv_vocabulary_fn = 'inv_vocabulary_en'
 
-fd = io.lines('datasetSentences')
+fd = io.lines('trainSentences')
 words_count = {}
 words = {}
 sentences = {}
-vocab_size = 19499
+vocab_size = 16000
 line = fd()
 while line do
   sentence = {}
