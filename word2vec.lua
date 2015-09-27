@@ -111,18 +111,8 @@ word_center = nn.Identity()()
 word_outer = nn.Identity()()
 
 x_center = Embedding(vocab_size, 10)(word_center)
-s_center = nn.Square()(x_center)
-s_center = nn.Sum(2)(s_center)
-s_center = nn.Sqrt()(s_center)
-s_center = nn.Replicate(10, 2)(s_center)
-x_center = nn.CDivTable()({x_center, s_center})
 
 x_outer = Embedding(vocab_size, 10)(word_outer)
-s_outer= nn.Square()(x_outer)
-s_outer = nn.Sum(2)(s_outer)
-s_outer = nn.Sqrt()(s_outer)
-s_outer = nn.Replicate(10, 2)(s_outer)
-x_outer = nn.CDivTable()({x_outer, s_outer})
 
 z = nn.CosineDistance()({x_outer, x_center})
 

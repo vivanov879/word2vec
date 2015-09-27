@@ -86,7 +86,7 @@ for i = 1, #sentences do
       filtered_sentence[#filtered_sentence + 1] = word
     end
   end
-  if #filtered_sentence > 5 then
+  if #filtered_sentence > 3 then
     filtered_sentences[#filtered_sentences + 1] = filtered_sentence
   end
   
