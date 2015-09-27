@@ -66,7 +66,6 @@ context_size = 5
 batch_size = 1000
 neg_samples_num = 10
 
-n_data = batch_size * math.floor(n_data/batch_size)
 data_index = 1
 
 function gen_batch()
@@ -77,7 +76,7 @@ function gen_batch()
   else
     data_index = data_index + batch_size
   end
-  basic_batch_size = batch_size
+  basic_batch_size = end_index - start_index + 1
   local center_words = torch.Tensor( (2*context_size * (1 + neg_samples_num)) * basic_batch_size)
   local outer_words = torch.Tensor( (2*context_size * (1 + neg_samples_num)) * basic_batch_size)
   local labels = torch.Tensor( center_words:size(1))
@@ -111,8 +110,9 @@ word_center = nn.Identity()()
 word_outer = nn.Identity()()
 
 x_center = Embedding(vocab_size, 10)(word_center)
-
+x_center = nn.Normalize(2)(x_center)
 x_outer = Embedding(vocab_size, 10)(word_outer)
+x_outer = nn.Normalize(2)(x_outer)
 
 z = nn.CosineDistance()({x_outer, x_center})
 

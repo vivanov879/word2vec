@@ -79,9 +79,7 @@ end
 
 
 x_raw = nn.Identity()()
-x = nn.Linear(features_train:size(2), 200)(x_raw)
-x = nn.Tanh()(x)
-x = nn.Linear(200, 5)(x)
+x = nn.Linear(features_train:size(2), 5)(x_raw)
 x = nn.LogSoftMax()(x)
 m = nn.gModule({x_raw}, {x})
 
