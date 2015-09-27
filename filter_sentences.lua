@@ -19,7 +19,6 @@ fd = io.lines('trainSentences')
 words_count = {}
 words = {}
 sentences = {}
-vocab_size = 16000
 line = fd()
 while line do
   sentence = {}
@@ -54,6 +53,7 @@ table.sort(words, compare)
 --  print(key, val)
 --end
 
+vocab_size = #words
 vocabulary = {}
 inv_vocabulary = {}
 for i = 1, vocab_size do 

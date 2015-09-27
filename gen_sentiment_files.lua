@@ -83,7 +83,7 @@ function gen_sentiment_files(fn_sentences, fn_labels, fn_out)
   end
 
   torch.save(fn_out, {phrases_filtered_tensor, sentiment_lables_filtered_tensor, phrases_filtered_text})
-  print(phrases_filtered_tensor)
+  print(phrases_filtered_tensor:size())
 
 end
 
