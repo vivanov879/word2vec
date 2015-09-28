@@ -37,10 +37,22 @@ m = nn.gModule({word_center, word_outer}, {z, x_outer_, x_center_})
 
 ```th word2vec.lua``` example outputs after many iterations:
 ```
+loss = 0.11914144, grad_params:norm() = 2.9512e-03, params:norm() = 9.8262e+01	
+loss = 0.11778496, grad_params:norm() = 3.2691e-03, params:norm() = 9.8274e+01	
+loss = 0.11646408, grad_params:norm() = 2.9714e-03, params:norm() = 9.8286e+01	
+loss = 0.11348016, grad_params:norm() = 2.8652e-03, params:norm() = 9.8298e+01	
+loss = 0.11632667, grad_params:norm() = 3.1923e-03, params:norm() = 9.8311e+01	
+loss = 0.11513715, grad_params:norm() = 3.1598e-03, params:norm() = 9.8323e+01	
+loss = 0.11461787, grad_params:norm() = 2.8214e-03, params:norm() = 9.8335e+01	
+loss = 0.11431365, grad_params:norm() = 3.1080e-03, params:norm() = 9.8347e+01	
+loss = 0.12215819, grad_params:norm() = 4.3113e-03, params:norm() = 9.8360e+01	
+loss = 0.11354396, grad_params:norm() = 3.1466e-03, params:norm() = 9.8372e+01	
+loss = 0.11717846, grad_params:norm() = 3.3619e-03, params:norm() = 9.8385e+01	
+loss = 0.11574432, grad_params:norm() = 2.9117e-03, params:norm() = 9.8397e+01	
 loss = 0.11931591, grad_params:norm() = 3.1105e-03, params:norm() = 9.8410e+01	
 loss = 0.11486262, grad_params:norm() = 2.3376e-03, params:norm() = 9.8422e+01	
 loss = 0.11434479, grad_params:norm() = 2.6629e-03, params:norm() = 9.8435e+01	
-loss = 0.11297270, grad_params:norm() = 3.0902e-03, params:norm() = 9.8447e+01
+loss = 0.11297270, grad_params:norm() = 3.0902e-03, params:norm() = 9.8447e+01	
 ```
 
 ```th sentiment_analysis.lua``` output after some number of iterations:
