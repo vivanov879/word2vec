@@ -15,7 +15,7 @@ end
 vocabulary_fn = 'vocabulary_en'
 inv_vocabulary_fn = 'inv_vocabulary_en'
 
-fd = io.lines('trainSentences')
+fd = io.lines('original_rt_snippets')
 words_count = {}
 words = {}
 sentences = {}

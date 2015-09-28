@@ -40,6 +40,17 @@ word_outer = indexes:clone()
 m = torch.load('model.t7')
 _, x_outer, x_center = unpack(m:forward({word_center, word_outer}))
 x = torch.add(x_outer, x_center)
+
+mean = x:mean(1)
+std = x:std(1)
+
+mean_expanded = torch.expand(mean, x:size(1), x:size(2))
+std_expanded = torch.expand(std, x:size(1), x:size(2))
+
+x = x:add(-mean_expanded)
+x = x:cdiv(std_expanded)
+
+
 word_vectors = x
 
 
