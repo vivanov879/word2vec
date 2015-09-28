@@ -45,14 +45,21 @@ loss = 0.11297270, grad_params:norm() = 3.0902e-03, params:norm() = 9.8447e+01
 
 ```th sentiment_analysis.lua``` output after some number of iterations:
 ```
-train set: loss = 1.54543872, f1_score =    nan, precision = 0.34005939, recall = 0.24525582, grad_params:norm() = 9.1239e-01, params:norm() = 1.7219e+02	
-dev set:   loss = 1.57993113, f1_score = 0.15993812, precision = 0.30514166, recall = 0.20978553	
+train set: loss = 1.55104364, f1_score = 0.18394721, precision = 0.34597694, recall = 0.22747006, grad_params:norm() = 6.7158e-01, params:norm() = 6.3476e+01	
+dev set:   loss = 1.56834475, f1_score = 0.16801552, precision = 0.30563835, recall = 0.21562503	
 success	
-train set: loss = 1.53537633, f1_score = 0.18173430, precision = 0.42847230, recall = 0.22450341, grad_params:norm() = 2.6352e-01, params:norm() = 1.7223e+02	
-dev set:   loss = 1.58010039, f1_score = 0.15950854, precision = 0.34178091, recall = 0.20911573	
+train set: loss = 1.55557282, f1_score =    nan, precision = 0.29000712, recall = 0.23968426, grad_params:norm() = 8.7115e-01, params:norm() = 6.3757e+01	
+dev set:   loss = 1.56860018, f1_score =    nan, precision = 0.24876680, recall = 0.21427333	
+train set: loss = 1.54965129, f1_score = 0.17010089, precision = 0.35540269, recall = 0.21828832, grad_params:norm() = 2.2832e-01, params:norm() = 6.4020e+01	
+dev set:   loss = 1.56864349, f1_score = 0.16472635, precision = 0.28914897, recall = 0.21383932	
+train set: loss = 1.55040840, f1_score = 0.18304011, precision = 0.35890092, recall = 0.22776055, grad_params:norm() = 7.1540e-01, params:norm() = 6.4286e+01	
+dev set:   loss = 1.56893610, f1_score = 0.17009003, precision = 0.30058033, recall = 0.21598218	
 success	
-train set: loss = 1.52821191, f1_score = 0.21457752, precision = 0.43319328, recall = 0.24664033, grad_params:norm() = 6.9045e-01, params:norm() = 1.7227e+02	
-dev set:   loss = 1.58173595, f1_score =    nan, precision = 0.22474973, recall = 0.20582198	
-train set: loss = 1.54566442, f1_score =    nan, precision = 0.32999437, recall = 0.24216919, grad_params:norm() = 9.0763e-01, params:norm() = 1.7229e+02	
-dev set:   loss = 1.58140066, f1_score =    nan, precision = 0.23484737, recall = 0.20707198	
+train set: loss = 1.55578923, f1_score =    nan, precision = 0.27823843, recall = 0.23775610, grad_params:norm() = 8.7676e-01, params:norm() = 6.4530e+01	
+dev set:   loss = 1.56943533, f1_score =    nan, precision = 0.24482958, recall = 0.21237577	
+train set: loss = 1.54900364, f1_score = 0.17349076, precision = 0.36970442, recall = 0.22035081, grad_params:norm() = 2.1700e-01, params:norm() = 6.4779e+01	
+dev set:   loss = 1.56876765, f1_score = 0.16603706, precision = 0.28586120, recall = 0.21404013	
+train set: loss = 1.55048328, f1_score = 0.18201624, precision = 0.35189609, recall = 0.22688347, grad_params:norm() = 7.2782e-01, params:norm() = 6.5017e+01	
+dev set:   loss = 1.56869145, f1_score = 0.16786719, precision = 0.30135164, recall = 0.21560279	
+
 ```
