@@ -1,4 +1,4 @@
-Torch implementation of word2vec and sentiment analysis as explained in assignment1.pdf. Negative sampling loss function and max-margin learning are used for word2vec. 
+Torch implementation of word2vec and sentiment analysis as explained in assignment1.pdf. Negative sampling loss function and max-margin learning are used for word2vec.
 
 - In Terminal.app, run ```python extract_datasets_for_torch.py``` to generate datasets for sentiment_analysis.lua.
 - Run ```th filter_sentences.lua``` to generate vocabulary of words and then write sentences to file using this vocabulary
@@ -47,3 +47,12 @@ m = nn.gModule({word_center, word_outer}, {z, x_outer_, x_center_})
 [0mdev set:   loss = 5.80758584, f1_score = 0.26171921, precision = 0.26514217, recall = 0.26170220[0m	
 ```
 
+Received the following results at some point when running sentiment_analysis.lua:
+```
+rain set: loss = 1.55710525, f1_score =    nan, precision = 0.31197135, recall = 0.22274478, grad_params:norm() = 8.1901e-01, params:norm() = 1.9249e+01	
+dev set:   loss = 1.57347447, f1_score = 0.16813775, precision = 0.29061131, recall = 0.20902423	
+train set: loss = 1.55308338, f1_score =    nan, precision = 0.22408359, recall = 0.22142282, grad_params:norm() = 3.5422e-01, params:norm() = 1.9289e+01	
+dev set:   loss = 1.57512956, f1_score = 0.15570986, precision = 0.33231576, recall = 0.20781024	
+train set: loss = 1.55401659, f1_score = 0.16469759, precision = 0.32298433, recall = 0.22195478, grad_params:norm() = 5.4652e-01, params:norm() = 1.9326e+01	
+dev set:   loss = 1.57352557, f1_score = 0.15918882, precision = 0.29073661, recall = 0.20218037
+```
