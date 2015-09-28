@@ -35,24 +35,24 @@ z = nn.Sum(2)(z)
 m = nn.gModule({word_center, word_outer}, {z, x_outer_, x_center_})
 ```
 
-```th sentiment_analysis.lua``` output after some number of iterations:
+```th word2vec.lua``` example outputs after many iterations:
 ```
-[0mtrain set: loss = 0.37572813, f1_score = 0.81646438, precision = 0.78565255, recall = 0.88257487, grad_params:norm() = 1.2556e+00[0m	
-[0mdev set:   loss = 5.64212655, f1_score = 0.25770454, precision = 0.26013115, recall = 0.25809553[0m	
-[0mtrain set: loss = 0.49148154, f1_score = 0.65898251, precision = 0.62987881, recall = 0.82804315, grad_params:norm() = 1.6640e+00[0m	
-[0mdev set:   loss = 5.67854709, f1_score = 0.25932898, precision = 0.25882361, recall = 0.26240873[0m	
-[0mtrain set: loss = 0.40021737, f1_score = 0.85581286, precision = 0.85515608, recall = 0.85821851, grad_params:norm() = 4.4860e-01[0m	
-[0mdev set:   loss = 5.75015865, f1_score = 0.25900874, precision = 0.25997797, recall = 0.26184089[0m	
-[0mtrain set: loss = 0.36129054, f1_score = 0.82461562, precision = 0.79386501, recall = 0.89055298, grad_params:norm() = 1.2625e+00[0m	
-[0mdev set:   loss = 5.80758584, f1_score = 0.26171921, precision = 0.26514217, recall = 0.26170220[0m	
+loss = 0.11931591, grad_params:norm() = 3.1105e-03, params:norm() = 9.8410e+01	
+loss = 0.11486262, grad_params:norm() = 2.3376e-03, params:norm() = 9.8422e+01	
+loss = 0.11434479, grad_params:norm() = 2.6629e-03, params:norm() = 9.8435e+01	
+loss = 0.11297270, grad_params:norm() = 3.0902e-03, params:norm() = 9.8447e+01
 ```
 
-Received the following results at some point when running sentiment_analysis.lua:
+```th sentiment_analysis.lua``` output after some number of iterations:
 ```
-rain set: loss = 1.55710525, f1_score =    nan, precision = 0.31197135, recall = 0.22274478, grad_params:norm() = 8.1901e-01, params:norm() = 1.9249e+01	
-dev set:   loss = 1.57347447, f1_score = 0.16813775, precision = 0.29061131, recall = 0.20902423	
-train set: loss = 1.55308338, f1_score =    nan, precision = 0.22408359, recall = 0.22142282, grad_params:norm() = 3.5422e-01, params:norm() = 1.9289e+01	
-dev set:   loss = 1.57512956, f1_score = 0.15570986, precision = 0.33231576, recall = 0.20781024	
-train set: loss = 1.55401659, f1_score = 0.16469759, precision = 0.32298433, recall = 0.22195478, grad_params:norm() = 5.4652e-01, params:norm() = 1.9326e+01	
-dev set:   loss = 1.57352557, f1_score = 0.15918882, precision = 0.29073661, recall = 0.20218037
+train set: loss = 1.54543872, f1_score =    nan, precision = 0.34005939, recall = 0.24525582, grad_params:norm() = 9.1239e-01, params:norm() = 1.7219e+02	
+dev set:   loss = 1.57993113, f1_score = 0.15993812, precision = 0.30514166, recall = 0.20978553	
+success	
+train set: loss = 1.53537633, f1_score = 0.18173430, precision = 0.42847230, recall = 0.22450341, grad_params:norm() = 2.6352e-01, params:norm() = 1.7223e+02	
+dev set:   loss = 1.58010039, f1_score = 0.15950854, precision = 0.34178091, recall = 0.20911573	
+success	
+train set: loss = 1.52821191, f1_score = 0.21457752, precision = 0.43319328, recall = 0.24664033, grad_params:norm() = 6.9045e-01, params:norm() = 1.7227e+02	
+dev set:   loss = 1.58173595, f1_score =    nan, precision = 0.22474973, recall = 0.20582198	
+train set: loss = 1.54566442, f1_score =    nan, precision = 0.32999437, recall = 0.24216919, grad_params:norm() = 9.0763e-01, params:norm() = 1.7229e+02	
+dev set:   loss = 1.58140066, f1_score =    nan, precision = 0.23484737, recall = 0.20707198	
 ```
