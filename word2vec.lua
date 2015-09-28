@@ -8,6 +8,21 @@ require 'table_utils'
 nngraph.setDebug(true)
 
 
+function get_context_words(sentence, context_size, center_word_index)
+  local possible= {}
+  for i = -context_size, context_size do 
+    if i ~= 0 and i + center_word_index <= #sentence and i + center_word_index > 0 then
+      possible[#possible+ 1] = sentence[i + center_word_index]
+    end
+  end
+  local ids = {}
+  for k = 1, 2*context_size do
+    ids[#ids + 1] = possible[math.random(1, #possible)]
+  end
+  return ids
+end
+
+
 function read_words(fn)
   fd = io.lines(fn)
   sentences = {}
@@ -83,13 +98,10 @@ function gen_batch()
   row = 1
   for k = 1, basic_batch_size do    
     sentence = sentences[start_index + k - 1]
-    center_word_index = math.random(2, #sentence-1)
+    center_word_index = math.random(1, #sentence)
     center_word = sentence[center_word_index]
-    for i = -context_size, context_size do
-      if i ~= 0 then 
-        context_index = center_word_index + i
-        context_index = math.clamp(context_index, 1, #sentence)
-        outer_word = sentence[context_index]
+    context_words = get_context_words(sentence, context_size, center_word_index)
+    for _, outer_word in pairs(context_words) do
         center_words[row] = center_word
         outer_words[row] = outer_word
         labels[row] = 1
@@ -100,7 +112,6 @@ function gen_batch()
         labels[{{row, row+neg_samples_num-1}}] = torch.Tensor(neg_samples_num):fill(-1)
         row = row + neg_samples_num
         dummy_pass = 1
-      end
     end
   end
   return center_words, outer_words, labels
