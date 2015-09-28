@@ -121,9 +121,7 @@ word_center = nn.Identity()()
 word_outer = nn.Identity()()
 
 x_center = Embedding(vocab_size, 10)(word_center)
-x_center = nn.Normalize(2)(x_center)
 x_outer = Embedding(vocab_size, 10)(word_outer)
-x_outer = nn.Normalize(2)(x_outer)
 
 z = nn.CosineDistance()({x_outer, x_center})
 

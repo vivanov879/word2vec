@@ -6,7 +6,6 @@ filtered_datasetSentences
 filtered_datasetSentences_indexes_en
 vocabulary_en
 inv_vocabulary_en
-model
 filter_sentences_output
 sentiment_features_and_labels
 *.t7
