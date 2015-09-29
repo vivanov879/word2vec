@@ -75,4 +75,4 @@ train set: loss = 1.55048328, f1_score = 0.18201624, precision = 0.35189609, rec
 dev set:   loss = 1.56869145, f1_score = 0.16786719, precision = 0.30135164, recall = 0.21560279	
 ```
 ```th visualize_word_vectors.lua``` output 
-![alt tag](https://github.com/vivanov879/word2vec/blob/master/Result_example.png)
+![th visualize_word_vectors.lua](https://github.com/vivanov879/word2vec/blob/master/Result_example.png)
