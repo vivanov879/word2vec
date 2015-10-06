@@ -55,7 +55,7 @@ loss = 0.11434479, grad_params:norm() = 2.6629e-03, params:norm() = 9.8435e+01
 loss = 0.11297270, grad_params:norm() = 3.0902e-03, params:norm() = 9.8447e+01	
 ```
 
-```th sentiment_analysis.lua``` output after some number of iterations, the goal was to achive precision of at least 0.3 on the dev set:
+```th sentiment_analysis.lua``` output after some number of iterations, the goal was to achieve precision of at least 0.3 on the dev set:
 ```
 train set: loss = 1.55104364, f1_score = 0.18394721, precision = 0.34597694, recall = 0.22747006, grad_params:norm() = 6.7158e-01, params:norm() = 6.3476e+01	
 dev set:   loss = 1.56834475, f1_score = 0.16801552, precision = 0.30563835, recall = 0.21562503	
